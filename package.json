@@ -1,0 +1,25 @@
+{
+  "name": "mapper-factory",
+  "version": "1.0.0",
+  "description": "mapper for typescript object",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/lucaAngrisani/mapper-factory.git"
+  },
+  "keywords": [
+    "mapper-ts"
+  ],
+  "author": "lucaAngrisani Angrigo",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/lucaAngrisani/mapper-factory/issues"
+  },
+  "homepage": "https://github.com/lucaAngrisani/mapper-factory#readme",
+  "devDependencies": {
+    "typescript": "^4.9.4"
+  }
+}
