@@ -22,7 +22,7 @@ export function getPrototype(target: Record<string, unknown> | ClassType): any {
     return isClass(target) || !target.prototype ? !target.constructor ? target : target.constructor : target.prototype;
 }
 
-export const mapField = <T = any>({
+export const MapField = <T = any>({
     transformer,
     reverser,
     src

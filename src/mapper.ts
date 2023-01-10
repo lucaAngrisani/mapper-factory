@@ -1,7 +1,7 @@
 import { getMapFieldMetadataList } from "./field.decorator"
 import { ClassType } from "./types"
 
-export function MapperFactory(baseClass: ClassType = Object) {
+export function MapperFactory(baseClass: ClassType = Object): any {
     class Mapper extends baseClass {
         constructor(object?: any, ...rest: any[]) {
             super(...rest);
