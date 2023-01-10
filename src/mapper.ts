@@ -10,57 +10,59 @@ export function MapperFactory(baseClass: ClassType = Object) {
 
             object &&
                 Object.keys(object).forEach(propertyName => {
-                    let metaKey = metadataList && Object.keys(metadataList).find(metadata => metadataList[metadata]?.src?.startsWith(propertyName) && metadataList[metadata]?.src != propertyName);
-                    let metaProp = metadataList[metaKey];
-                    if (metaProp) {
-                        let props: string[] = metaProp.src?.split('.');
-                        let propsStereoid = props.map(prop => {
-                            let index = prop.indexOf('[');
-                            return {
-                                prop: index > 0 ? prop.substring(0, index) : prop,
-                                isArray: prop.includes('[') && prop.includes(']'),
-                                arrIndex: prop.substring(index),
+                    let metaKeys = metadataList && Object.keys(metadataList).filter(metadata => metadataList[metadata]?.src?.startsWith(propertyName) && metadataList[metadata]?.src != propertyName);
+                    metaKeys.forEach(metaKey => {
+                        let metaProp = metadataList[metaKey];
+                        if (metaProp) {
+                            let props: string[] = metaProp.src?.split('.');
+                            let propsStereoid = props.map(prop => {
+                                let index = prop.indexOf('[');
+                                return {
+                                    prop: index > 0 ? prop.substring(0, index) : prop,
+                                    isArray: prop.includes('[') && prop.includes(']'),
+                                    arrIndex: prop.substring(index),
+                                }
+                            });
+
+                            let i: number;
+                            let objCopy = { ...object };
+                            for (i = 0; i < propsStereoid.length; i++) {
+                                if (propsStereoid[i].isArray) {
+                                    let arrIndex = propsStereoid[i].arrIndex?.split(/\[(\w+)\]/g)?.filter(index => index !== '');
+                                    objCopy = objCopy[propsStereoid[i].prop];
+
+                                    arrIndex.forEach((index, i) => {
+                                        objCopy = objCopy[index];
+                                    });
+                                } else {
+                                    objCopy = objCopy[propsStereoid[i].prop];
+                                }
                             }
-                        });
 
-                        let i: number;
-                        let objCopy = { ...object };
-                        for (i = 0; i < propsStereoid.length; i++) {
-                            if (propsStereoid[i].isArray) {
-                                let arrIndex = propsStereoid[i].arrIndex?.split(/\[(\w+)\]/g)?.filter(index => index !== '');
-                                objCopy = objCopy[propsStereoid[i].prop];
-
-                                arrIndex.forEach((index, i) => {
-                                    objCopy = objCopy[index];
-                                });
+                            if (metaProp?.transformer) {
+                                this[metaKey] = metaProp.transformer(objCopy);
                             } else {
-                                objCopy = objCopy[propsStereoid[i].prop];
-                            }
-                        }
-
-                        if (metaProp?.transformer) {
-                            this[metaKey] = metaProp.transformer(objCopy);
-                        } else {
-                            this[metaKey] = objCopy;
-                        }
-                    } else {
-                        let metaKey = metadataList && Object.keys(metadataList).find(metadata => metadataList[metadata]?.src == propertyName);
-                        if (metaKey) {
-                            const src = metadataList[metaKey].src || propertyName;
-
-                            if (metadataList[metaKey].transformer) {
-                                this[metaKey] = metadataList[metaKey].transformer(object[src]);
-                            } else {
-                                this[metaKey] = object[src];
+                                this[metaKey] = objCopy;
                             }
                         } else {
-                            if (metadataList[propertyName]?.transformer) {
-                                this[propertyName] = metadataList[propertyName].transformer(object[propertyName]);
+                            let metaKey = metadataList && Object.keys(metadataList).find(metadata => metadataList[metadata]?.src == propertyName);
+                            if (metaKey) {
+                                const src = metadataList[metaKey].src || propertyName;
+
+                                if (metadataList[metaKey].transformer) {
+                                    this[metaKey] = metadataList[metaKey].transformer(object[src]);
+                                } else {
+                                    this[metaKey] = object[src];
+                                }
                             } else {
-                                this[propertyName] = object[propertyName];
+                                if (metadataList[propertyName]?.transformer) {
+                                    this[propertyName] = metadataList[propertyName].transformer(object[propertyName]);
+                                } else {
+                                    this[propertyName] = object[propertyName];
+                                }
                             }
                         }
-                    }
+                    });
                 });
         }
 
@@ -85,30 +87,39 @@ export function MapperFactory(baseClass: ClassType = Object) {
 
                         let i: number;
                         let objCopy = obj;
-                        for (i = 0; i < propsStereoid.length - 1; i++) {
+                        let lastIndex: string;
+                        for (i = 0; i < propsStereoid.length; i++) {
                             if (propsStereoid[i].isArray) {
                                 let arrIndex = propsStereoid[i].arrIndex?.split(/\[(\w+)\]/g)?.filter(index => index !== '');
-                                objCopy[propsStereoid[i].prop] = [];
+                                objCopy[propsStereoid[i].prop] = objCopy[propsStereoid[i].prop] || [];
                                 objCopy = objCopy[propsStereoid[i].prop];
 
                                 arrIndex.forEach((index, i) => {
-                                    objCopy[index] = i == arrIndex.length - 1 ? {} : [];
-                                    objCopy = objCopy[index];
+                                    objCopy[index] = objCopy[index] || (i == arrIndex.length - 1 ? {} : []);
+                                    if (!(i == propsStereoid.length - 1))
+                                        objCopy = objCopy[index];
+                                    else
+                                        lastIndex = index;
                                 });
                             } else {
-                                objCopy[propsStereoid[i].prop] = {};
-                                objCopy = objCopy[propsStereoid[i].prop];
+                                objCopy[propsStereoid[i].prop] = objCopy[propsStereoid[i].prop] || {};
+                                if (!(i == propsStereoid.length - 1))
+                                    objCopy = objCopy[propsStereoid[i].prop];
+                                else
+                                    lastIndex = propsStereoid[i].prop;
                             }
                         }
 
                         if (Array.isArray(this[propertyName])) {
-                            objCopy[props[i]] = this[propertyName].map(item => {
-                                return item?.toMap ? item.toMap() : item;
-                            });
+                            objCopy[lastIndex] = metadataList[propertyName].antitransformer ?
+                                metadataList[propertyName].antitransformer(this[propertyName])
+                                : this[propertyName].map(item => {
+                                    return item?.toMap ? item.toMap() : item;
+                                });
                         } else if (metadataList[propertyName].toMap) {
-                            objCopy[props[i]] = this[propertyName]?.toMap();
+                            objCopy[lastIndex] = this[propertyName]?.toMap();
                         } else {
-                            objCopy[props[i]] = this[propertyName];
+                            objCopy[lastIndex] = metadataList[propertyName].antitransformer ? metadataList[propertyName].antitransformer(this[propertyName]) : this[propertyName];
                         }
                     } else {
                         if (Array.isArray(this[propertyName])) {
