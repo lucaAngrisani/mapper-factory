@@ -1,9 +1,9 @@
 {
   "name": "mapper-factory",
-  "version": "1.0.1",
+  "version": "1.0.3",
   "description": "mapper for typescript object",
-  "main": "dist/index.js",
-  "types": "dist/index.d.ts",
+  "main": "index.js",
+  "types": "index.d.ts",
   "files": [
     "/dist"
   ],
