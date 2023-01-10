@@ -3,17 +3,12 @@
         "module": "commonjs",
         "target": "es2016",
         "declaration": true,
-        "rootDir": "./src",
-        "outDir": "./dist",
-        "experimentalDecorators": true,
-        "skipLibCheck": true,
-        "inlineSourceMap": true
+        "outDir": "./dist"
     },
     "include": [
         "./src/**/*"
     ],
     "exclude": [
-        "node_modules",
-        "dist"
+        "node_modules"
     ]
 }
