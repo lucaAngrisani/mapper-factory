@@ -71,7 +71,7 @@ export function MapperFactory(baseClass: ClassType = Object): any {
 
             let obj = {};
             Object.keys(this).forEach(propertyName => {
-                if (Object.keys(metadataList).includes(propertyName)) {
+                if (Object.keys(metadataList).some(prop => prop == propertyName)) {
                     const src = metadataList[propertyName].src || propertyName;
 
                     if (src.includes('.')) {
@@ -144,7 +144,7 @@ export function MapperFactory(baseClass: ClassType = Object): any {
             const metadataList: any = getMapFieldMetadataList(this);
 
             Object.keys(obj).forEach(propertyName => {
-                if (Object.keys(metadataList).includes(propertyName)) {
+                if (Object.keys(metadataList).some(prop => prop == propertyName)) {
                     if (metadataList[propertyName].transformer) {
                         this[propertyName].objToModel(obj[propertyName]);
                     } else {
