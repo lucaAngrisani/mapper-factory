@@ -1,6 +1,6 @@
-import { MapperFactory, MapField } from '../src/index';
+import MapperFactory from "../dist/index";
 
-export class User extends MapperFactory() {
+export class User extends MapperFactory.MapperFactory() {
 
     id: string;
     name: string;
@@ -24,3 +24,6 @@ export class User extends MapperFactory() {
     */
 }
 
+
+new User({
+});

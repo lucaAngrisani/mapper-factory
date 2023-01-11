@@ -1,7 +1,7 @@
 import { getMapFieldMetadataList } from "./field.decorator"
 import { ClassType } from "./types"
 
-export function MapperFactory(baseClass: ClassType = Object): any {
+export function MapperFactory(baseClass: ClassType = Object): ClassType {
     class Mapper extends baseClass {
         constructor(object?: any, ...rest: any[]) {
             super(...rest);
@@ -111,15 +111,15 @@ export function MapperFactory(baseClass: ClassType = Object): any {
                         }
 
                         if (Array.isArray(this[propertyName])) {
-                            objCopy[lastIndex] = metadataList[propertyName].antitransformer ?
-                                metadataList[propertyName].antitransformer(this[propertyName])
+                            objCopy[lastIndex] = metadataList[propertyName].reverser ?
+                                metadataList[propertyName].reverser(this[propertyName])
                                 : this[propertyName].map(item => {
                                     return item?.toMap ? item.toMap() : item;
                                 });
                         } else if (metadataList[propertyName].toMap) {
                             objCopy[lastIndex] = this[propertyName]?.toMap();
                         } else {
-                            objCopy[lastIndex] = metadataList[propertyName].antitransformer ? metadataList[propertyName].antitransformer(this[propertyName]) : this[propertyName];
+                            objCopy[lastIndex] = metadataList[propertyName].reverser ? metadataList[propertyName].reverser(this[propertyName]) : this[propertyName];
                         }
                     } else {
                         if (Array.isArray(this[propertyName])) {
