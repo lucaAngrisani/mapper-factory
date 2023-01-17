@@ -250,6 +250,7 @@ export class MapperFactory {
 
         obj[props[i]] = value;
     }
+
 }
 
 /**
