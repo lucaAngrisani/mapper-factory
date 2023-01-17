@@ -55,7 +55,7 @@ export const MapField = <T = any>({
 };
 
 export const getMapFieldMetadataList = (
-    target: Record<string, unknown> | ClassType,
+    target: Record<string, unknown> | ClassType | any,
 ): { [key: string]: MapperMetadata } | undefined => {
     return Reflect.getMetadata(MAP_FIELD, getPrototype(target));
 };
