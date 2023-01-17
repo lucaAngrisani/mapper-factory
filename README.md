@@ -1,6 +1,8 @@
 # Mapper-Factory
 Mapper-Factory is a fully documented TypeScript library that provides a simple and easy-to-use way to map objects from one type to another. With just a few lines of code, you can convert complex, nested objects into the desired format.
 
+Work well on data structure and after enjoy the coding process :)
+
 ## Installation
 To install the package, you can use npm by running the following command:
 
@@ -27,18 +29,28 @@ After that, you can use *@MapField* decorator over single property to specify th
 class User extends MapperFactory {
 
     @MapField({
+        src: 'firstName'
+    })
+    name: string;
+
+    @MapField({
         src: 'obj.obj[0][1]',
         transformer: (arr) => arr.map(role => role + " TEST TRASFORMER"),
         reverser: (arr) => arr.map(role => role.replace(" TEST TRASFORMER", "")),
     })
     roles?: string[];
+
+    @MapField({
+        transformer: (user) => new User(user)
+    })
+    boss: User;
 }
 ```
 
 Inside *@MapField* you can use:
-- ***src*** define a string of original field name
-- ***transform*** function to transform used in *constructor* of the class
-- ***reverse*** function to reverse used in *toMap* method of the class
+- ***src***:  define a string of original field name (also using a path like *"obj.obj[0][1]"*)
+- ***transform***:  function to transform data input in *constructor* of the class
+- ***reverse***:    function to transform data input in *toMap* method of the class
 
 In this example:
 
@@ -69,10 +81,15 @@ class User extends MapperFactory {
         transformer: (arr) => arr.map(user => new User(user))
     })
     employees?: User[];
+
+    @MapField({
+        transformer: (user) => new User(user)
+    })
+    boss: User;
 }
 ```
 
-We can define a new User ***u***:
+You can define a new User ***u***:
 
 ```
 let emp1: User = new User({ firstName: "Summer", lastName: "Smith" });
@@ -81,7 +98,7 @@ let emp2: User = new User({ firstName: "Morty", lastName: "Smith" });
 let u = new User({ firstName: "Rick", lastName: "Sanchez", employees: [emp1, emp2], rolesToMap: ["CEO", "EMPLOYEE"] });
 ```
 
-In that way you can create a new JS Object User passing a JSON object. Automatically constructor use *src* and *transformer* field to obtain the correct object you want.
+In that way you can create a new JS Object User passing a JSON object. Automatically constructor use *src* and *transformer* to obtain the correct object you want.
 
 In this specific case we have trasformed a JSON object:
 
@@ -101,7 +118,7 @@ u.toMap()
 
 Obtaining the original JSON Object.
 
-You can also fill properties of an object from another by using ***objToModel()*** method, in that way:
+You can also fill properties of an object from another (typically with same class) by using ***objToModel()*** method, in that way:
 
 ```
 let uCopy = new User();
@@ -125,7 +142,7 @@ user.name = "Rick";
 user.empty(); //FALSE
 ```
 
-It is implemented also a GET/SET method by path. Using ***get(path: string)*** and ***set(path: string, value: any)*** you can access to the property you want and GET or SET the value:
+It is implemented also a GET/SET method whitch use the path. Using ***get(path: string)*** and ***set(path: string, value: any)*** you can access to the property you want and then GET or SET the value:
 
 ```
 u.set("name", "Rick TEST-SET");

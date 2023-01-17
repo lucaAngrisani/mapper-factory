@@ -181,10 +181,10 @@ export class MapperFactory {
                 if (metadataList[propertyName].transformer) {
                     if (Array.isArray(obj[propertyName])) {
                         this[propertyName] = obj[propertyName].map(item => {
-                            return item?.toMap ? item.toMap() : item;
+                            return item;
                         });
                     } else {
-                        this[propertyName].objToModel(obj[propertyName]);
+                        this[propertyName] = obj[propertyName];
                     }
                 } else {
                     this[propertyName] = obj[propertyName];
@@ -205,7 +205,7 @@ export class MapperFactory {
     empty(): boolean {
         let check = true;
         Object.keys(this).forEach(propertyName => {
-            if (this[propertyName] === undefined || this[propertyName] === null) {
+            if (this[propertyName] !== undefined && this[propertyName] !== null) {
                 check = false;
             }
         });
