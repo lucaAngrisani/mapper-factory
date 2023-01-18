@@ -35,10 +35,12 @@ class User extends MapperFactory {
 
 let emp1: User = new User({ firstName: "Summer", lastName: "Smith" });
 let emp2: User = new User({ firstName: "Morty", lastName: "Smith" });
+let JSONObject = { firstName: "Rick", lastName: "Sanchez", employees: [emp1.toMap(), emp2.toMap()], rolesToMap: ["CEO", "EMPLOYEE"], boss: { firstName: "Nello", lastName: "Stanco" } };
 
 //TEST constructor
-let u = new User({ firstName: "Rick", lastName: "Sanchez", employees: [emp1, emp2], rolesToMap: ["CEO", "EMPLOYEE"], boss: { firstName: "Nello", lastName: "Stanco" } });
+let u = new User(JSONObject);
 console.log("\nTEST constructor");
+console.log(JSONObject);
 console.log(u);
 
 //TEST objToModel method with JS Object

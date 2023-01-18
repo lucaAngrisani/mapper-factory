@@ -6,11 +6,15 @@ Work well on data structure and after enjoy the coding process :)
 ## Installation
 To install the package, you can use npm by running the following command:
 
-<code>npm i mapper-factory</code>
+```
+npm i mapper-factory
+```
 
 Or using yarn
 
-<code>yarn add mapper-factory</code>
+```
+yarn add mapper-factory
+```
 
 ## Usage
 ### Mapping simple objects
@@ -102,11 +106,33 @@ In that way you can create a new JS Object User passing a JSON object. Automatic
 
 In this specific case we have trasformed a JSON object:
 
-![JSON_Object](images/json_object.png "JSON Object to convert")
+```
+{
+  firstName: 'Rick',
+  lastName: 'Sanchez',
+  employees: [
+    { firstName: 'Summer', lastName: 'Smith' },
+    { firstName: 'Morty', lastName: 'Smith' }
+  ],
+  rolesToMap: [ 'CEO', 'EMPLOYEE' ],
+  boss: { firstName: 'Nello', lastName: 'Stanco' }
+}
+```
 
 In this JS Object:
 
-![JS_Object](images/js_object_mapped.png "JS Object mapped")
+```
+User {
+  name: 'Rick',
+  surname: 'Sanchez',
+  employees: [
+    User { name: 'Summer', surname: 'Smith' },
+    User { name: 'Morty', surname: 'Smith' }
+  ],
+  roles: [ 'CEO TEST TRASFORMER', 'EMPLOYEE TEST TRASFORMER' ],
+  boss: User { name: 'Nello', surname: 'Stanco' }
+}
+```
 
 Just using the constructor of *User* class.
 
