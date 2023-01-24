@@ -153,7 +153,7 @@ export class MapperFactory {
                         obj[src] = this[propertyName].map(item => {
                             return item?.toMap ? item.toMap() : item;
                         });
-                    } else if (metadataList[propertyName].toMap) {
+                    } else if (this[propertyName].toMap) {
                         obj[src] = this[propertyName]?.toMap();
                     } else {
                         obj[src] = metadataList[propertyName]?.reverser ? metadataList[propertyName].reverser(this[propertyName]) : this[propertyName];
