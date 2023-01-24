@@ -14,7 +14,7 @@ export class MapperFactory {
         object &&
             Object.keys(object).forEach(propertyName => {
                 let metaKeys = metadataList && Object.keys(metadataList).filter(metadata => metadataList[metadata]?.src?.startsWith(propertyName) && metadataList[metadata]?.src != propertyName);
-                if (metaKeys.length) {
+                if (metaKeys?.length) {
                     metaKeys.forEach(metaKey => {
                         let metaProp = metadataList[metaKey];
                         if (metaProp) {
