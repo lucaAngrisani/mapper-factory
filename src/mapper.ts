@@ -98,7 +98,7 @@ export class MapperFactory {
 
         let obj = {};
         Object.keys(this).forEach(propertyName => {
-            if (Object.keys(metadataList).some(prop => prop == propertyName)) {
+            if (metadataList && Object.keys(metadataList).some(prop => prop == propertyName)) {
                 const src = metadataList[propertyName].src || propertyName;
 
                 if (src.includes('.')) {
