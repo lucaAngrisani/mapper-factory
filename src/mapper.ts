@@ -156,11 +156,11 @@ export class MapperFactory {
                     } else if (metadataList[propertyName].toMap) {
                         obj[src] = this[propertyName]?.toMap();
                     } else {
-                        obj[src] = this[propertyName];
+                        obj[src] = metadataList[propertyName].reverser ? metadataList[propertyName].reverser(this[propertyName]) : this[propertyName];
                     }
                 }
             } else {
-                obj[propertyName] = this[propertyName];
+                obj[propertyName] = metadataList[propertyName].reverser ? metadataList[propertyName].reverser(this[propertyName]) : this[propertyName];
             }
         });
 

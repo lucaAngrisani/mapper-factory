@@ -1,5 +1,15 @@
 import { MapField, MapperFactory } from "../dist/index";
 
+class History extends MapperFactory {
+    id: string;
+
+    @MapField({
+        transformer: (arr) => " TEST TRASFORMER",
+        reverser: (arr) => " TEST REVERSER",
+    })
+    name: string;
+}
+
 class User extends MapperFactory {
 
     id: string;
@@ -31,6 +41,13 @@ class User extends MapperFactory {
         transformer: (user) => new User(user)
     })
     boss: User;
+
+    @MapField({
+        transformer: histories => histories.map(hst => new History(hst)),
+        reverser: histories => histories.map(hst => hst.toMap()),
+    })
+    histories: History[];
+
 }
 
 let emp1: User = new User({ firstName: "Summer", lastName: "Smith" });
@@ -45,7 +62,6 @@ console.log(u);
 
 //TEST objToModel method with JS Object
 let u1 = new User();
-debugger;
 console.log("\nTEST objToModel method with JS Object");
 console.log(u1.objToModel(u));
 
@@ -73,3 +89,11 @@ let dpCopy = new User(u.toMap());
 dpCopy.name = "nome dpCopy";
 console.log(u);
 console.log(dpCopy);
+
+//TEST trasformer/reverser
+console.log("\nTEST reverser");
+let h1 = new History({ name: "h1" });
+let h2 = new History({ name: "h2" });
+u.histories = [h1, h2];
+console.log(u);
+console.log(u.toMap());
