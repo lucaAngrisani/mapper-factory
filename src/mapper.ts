@@ -177,7 +177,7 @@ export class MapperFactory {
         const metadataList: any = getMapFieldMetadataList(this);
 
         Object.keys(obj).forEach(propertyName => {
-            if (Object.keys(metadataList).some(prop => prop == propertyName)) {
+            if (metadataList && Object.keys(metadataList).some(prop => prop == propertyName)) {
                 if (metadataList[propertyName].transformer) {
                     if (Array.isArray(obj[propertyName])) {
                         this[propertyName] = obj[propertyName].map(item => {
