@@ -78,7 +78,7 @@ export class MapperFactory {
                             this[metaKey] = object[src];
                         }
                     } else {
-                        if (metadataList[propertyName]?.transformer) {
+                        if (metadataList && metadataList[propertyName]?.transformer) {
                             this[propertyName] = metadataList[propertyName].transformer(object[propertyName]);
                         } else {
                             this[propertyName] = object[propertyName];
