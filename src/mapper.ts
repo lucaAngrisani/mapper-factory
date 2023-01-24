@@ -115,7 +115,7 @@ export class MapperFactory {
                     let i: number;
                     let objCopy = obj;
                     let lastIndex: string;
-                    for (i = 0; i < propsStereoid.length; i++) {
+                    for (i = 0; i < propsStereoid?.length; i++) {
                         if (propsStereoid[i].isArray) {
                             let arrIndex = propsStereoid[i].arrIndex?.split(/\[(\w+)\]/g)?.filter(index => index !== '');
                             objCopy[propsStereoid[i].prop] = objCopy[propsStereoid[i].prop] || [];
@@ -130,7 +130,7 @@ export class MapperFactory {
                             });
                         } else {
                             objCopy[propsStereoid[i].prop] = objCopy[propsStereoid[i].prop] || {};
-                            if (!(i == propsStereoid.length - 1))
+                            if (!(i == propsStereoid?.length - 1))
                                 objCopy = objCopy[propsStereoid[i].prop];
                             else
                                 lastIndex = propsStereoid[i].prop;
@@ -223,7 +223,7 @@ export class MapperFactory {
         let pathReplaced = path.replace(/\[(\w+)\]/g, '.$1');
         let props: string[] = pathReplaced.split('.');
         let rtn: any
-        if (props.length) {
+        if (props?.length) {
             rtn = this[props[0]];
             for (let index in props) {
                 if (+index > 0)
@@ -245,7 +245,7 @@ export class MapperFactory {
 
         let obj = this;
         let i: number;
-        for (i = 0; i < props.length - 1; i++)
+        for (i = 0; i < props?.length - 1; i++)
             obj = obj[props[i]];
 
         obj[props[i]] = value;
