@@ -160,7 +160,7 @@ export class MapperFactory {
                     }
                 }
             } else {
-                obj[propertyName] = metadataList[propertyName]?.reverser ? metadataList[propertyName].reverser(this[propertyName]) : this[propertyName];
+                obj[propertyName] = (metadataList && metadataList[propertyName]?.reverser) ? metadataList[propertyName].reverser(this[propertyName]) : this[propertyName];
             }
         });
 
