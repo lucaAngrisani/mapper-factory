@@ -149,7 +149,7 @@ export class MapperFactory {
                         objCopy[lastIndex] = metadataList[propertyName].reverser ? metadataList[propertyName].reverser(this[propertyName]) : this[propertyName];
                     }
                 } else {
-                    if (Array.isArray(this[propertyName])) {
+                    if (Array.isArray(this[propertyName]) && !metadataList[propertyName]?.reverser) {
                         obj[src] = this[propertyName].map(item => {
                             return item?.toMap ? item.toMap() : item;
                         });
