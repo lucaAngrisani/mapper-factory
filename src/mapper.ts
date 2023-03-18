@@ -5,7 +5,7 @@ export class MapperFactory {
     /**
      * Constructor of the mapper.
      * 
-     * @param object object to be mapped considering metadata "src" and "transformer"
+     * @param object object to be mapped considering metadata "src", "transformer" and "reverser"
      */
     constructor(object?: any) {
 
@@ -44,7 +44,7 @@ export class MapperFactory {
                             }
 
                             if (metaProp?.transformer) {
-                                this[metaKey] = metaProp.transformer(objCopy);
+                                this[metaKey] = metaProp.transformer(objCopy, object);
                             } else {
                                 this[metaKey] = objCopy;
                             }
@@ -54,13 +54,13 @@ export class MapperFactory {
                                 const src = metadataList[metaKey].src || propertyName;
 
                                 if (metadataList[metaKey].transformer) {
-                                    this[metaKey] = metadataList[metaKey].transformer(object[src]);
+                                    this[metaKey] = metadataList[metaKey].transformer(object[src], object);
                                 } else {
                                     this[metaKey] = object[src];
                                 }
                             } else {
                                 if (metadataList[propertyName]?.transformer) {
-                                    this[propertyName] = metadataList[propertyName].transformer(object[propertyName]);
+                                    this[propertyName] = metadataList[propertyName].transformer(object[propertyName], object);
                                 } else {
                                     this[propertyName] = object[propertyName];
                                 }
@@ -73,19 +73,26 @@ export class MapperFactory {
                         const src = metadataList[metaKey].src || propertyName;
 
                         if (metadataList[metaKey].transformer) {
-                            this[metaKey] = metadataList[metaKey].transformer(object[src]);
+                            this[metaKey] = metadataList[metaKey].transformer(object[src], object);
                         } else {
                             this[metaKey] = object[src];
                         }
                     } else {
                         if (metadataList && metadataList[propertyName]?.transformer) {
-                            this[propertyName] = metadataList[propertyName].transformer(object[propertyName]);
+                            this[propertyName] = metadataList[propertyName].transformer(object[propertyName], object);
                         } else {
                             this[propertyName] = object[propertyName];
                         }
                     }
                 }
             });
+
+        //MAP CASE initialize = true
+        Object.keys(metadataList).forEach(metaName => {
+            if (metadataList[metaName]?.initialize && metadataList[metaName]?.transformer) {
+                this[metaName] = metadataList[metaName]?.transformer(null, object);
+            }
+        });
     }
 
     /**
@@ -139,30 +146,40 @@ export class MapperFactory {
 
                     if (Array.isArray(this[propertyName])) {
                         objCopy[lastIndex] = metadataList[propertyName].reverser ?
-                            metadataList[propertyName].reverser(this[propertyName])
+                            metadataList[propertyName].reverser(this[propertyName], this)
                             : this[propertyName].map(item => {
                                 return item?.toMap ? item.toMap() : item;
                             });
                     } else if (metadataList[propertyName].toMap) {
                         objCopy[lastIndex] = this[propertyName]?.toMap();
                     } else {
-                        objCopy[lastIndex] = metadataList[propertyName].reverser ? metadataList[propertyName].reverser(this[propertyName]) : this[propertyName];
+                        objCopy[lastIndex] = metadataList[propertyName].reverser ? metadataList[propertyName].reverser(this[propertyName], this) : this[propertyName];
                     }
                 } else {
-                    if (Array.isArray(this[propertyName]) && !metadataList[propertyName]?.reverser) {
-                        obj[src] = this[propertyName].map(item => {
-                            return item?.toMap ? item.toMap() : item;
+                    if (metadataList[propertyName]?.initialize && metadataList[propertyName]?.reverser) {
+                        const revObj = metadataList[propertyName]?.reverser(this[propertyName]);
+                        Object.keys(revObj).forEach(key => {
+                            obj[key] = revObj[key];
                         });
-                    } else if (this[propertyName].toMap) {
-                        obj[src] = this[propertyName]?.toMap();
                     } else {
-                        obj[src] = metadataList[propertyName]?.reverser ? metadataList[propertyName].reverser(this[propertyName]) : this[propertyName];
+                        if (Array.isArray(this[propertyName]) && !metadataList[propertyName]?.reverser) {
+                            obj[src] = this[propertyName].map(item => {
+                                return item?.toMap ? item.toMap() : item;
+                            });
+                        } else if (this[propertyName].toMap) {
+                            obj[src] = this[propertyName]?.toMap();
+                        } else {
+                            obj[src] = metadataList[propertyName]?.reverser ? metadataList[propertyName].reverser(this[propertyName], this) : this[propertyName];
+                        }
                     }
                 }
             } else {
-                obj[propertyName] = (metadataList && metadataList[propertyName]?.reverser) ? metadataList[propertyName].reverser(this[propertyName]) : this[propertyName];
+                if (!obj[propertyName])
+                    obj[propertyName] = (metadataList && metadataList[propertyName]?.reverser) ? metadataList[propertyName].reverser(this[propertyName], this) : this[propertyName];
             }
         });
+
+
 
         return obj;
     }

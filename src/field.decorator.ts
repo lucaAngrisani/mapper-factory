@@ -5,7 +5,8 @@ export const MAP_FIELD = Symbol('MAP_FIELD');
 
 export interface MapperMetadata<T = any> {
     src?: string;
-    transformer?: { (input: any): any };
+    initialize?: boolean;
+    transformer?: { (input: any, ref: any): any };
     reverser?: { (input: any): any };
 
     //   _propertyName?: string;
@@ -25,7 +26,8 @@ export function getPrototype(target: Record<string, unknown> | ClassType): any {
 export const MapField = <T = any>({
     transformer,
     reverser,
-    src
+    src,
+    initialize = false,
 }: MapperMetadata<T> = {}): PropertyDecorator => {
     return (target: any, property: string | symbol) => {
         const classConstructor = target.constructor;
@@ -42,6 +44,7 @@ export const MapField = <T = any>({
         newMetadata[propertyName] = {
             ...previousValues,
             src,
+            initialize,
             transformer,
             reverser,
         };

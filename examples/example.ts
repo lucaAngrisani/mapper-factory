@@ -8,6 +8,17 @@ class History extends MapperFactory {
         reverser: (arr) => " TEST REVERSER",
     })
     name: string;
+
+    testControl: string;
+
+    @MapField({
+        initialize: true,
+        transformer: (arr, obj) => { return [obj.monday, obj.tuesday] },
+        reverser: (arr) => {
+            return { monday: arr && arr[0], tuesday: arr && arr[1] }
+        },
+    })
+    daysActive: string[];
 }
 
 class User extends MapperFactory {
@@ -97,3 +108,9 @@ let h2 = new History({ name: "h2" });
 u.histories = [h1, h2];
 console.log(u);
 console.log(u.toMap());
+
+//TEST ref
+let hTest = new History({ monday: "0", tuesday: "1", testControl: "control" });
+console.log(hTest)
+hTest.daysActive = ['1', '0'];
+console.log(hTest.toMap());
