@@ -11,84 +11,83 @@ export class MapperFactory {
 
         const metadataList: any = getMapFieldMetadataList(this);
 
-        object &&
-            Object.keys(object).forEach(propertyName => {
-                let metaKeys = metadataList && Object.keys(metadataList).filter(metadata => metadataList[metadata]?.src?.startsWith(propertyName) && metadataList[metadata]?.src != propertyName);
-                if (metaKeys?.length) {
-                    metaKeys.forEach(metaKey => {
-                        let metaProp = metadataList[metaKey];
-                        if (metaProp) {
-                            let props: string[] = metaProp.src?.split('.');
-                            let propsStereoid = props.map(prop => {
-                                let index = prop.indexOf('[');
-                                return {
-                                    prop: index > 0 ? prop.substring(0, index) : prop,
-                                    isArray: prop.includes('[') && prop.includes(']'),
-                                    arrIndex: prop.substring(index),
-                                }
-                            });
-
-                            let i: number;
-                            let objCopy = { ...object };
-                            for (i = 0; i < propsStereoid.length; i++) {
-                                if (propsStereoid[i].isArray) {
-                                    let arrIndex = propsStereoid[i].arrIndex?.split(/\[(\w+)\]/g)?.filter(index => index !== '');
-                                    objCopy = objCopy[propsStereoid[i].prop];
-
-                                    arrIndex.forEach((index, i) => {
-                                        objCopy = objCopy[index];
-                                    });
-                                } else {
-                                    objCopy = objCopy[propsStereoid[i].prop];
-                                }
+        object && Object.keys(object).forEach(propertyName => {
+            let metaKeys = metadataList && Object.keys(metadataList).filter(metadata => metadataList[metadata]?.src?.startsWith(propertyName) && metadataList[metadata]?.src != propertyName);
+            if (metaKeys?.length) {
+                metaKeys.forEach(metaKey => {
+                    let metaProp = metadataList[metaKey];
+                    if (metaProp) {
+                        let props: string[] = metaProp.src?.split('.');
+                        let propsStereoid = props.map(prop => {
+                            let index = prop.indexOf('[');
+                            return {
+                                prop: index > 0 ? prop.substring(0, index) : prop,
+                                isArray: prop.includes('[') && prop.includes(']'),
+                                arrIndex: prop.substring(index),
                             }
+                        });
 
-                            if (metaProp?.transformer) {
-                                this[metaKey] = metaProp.transformer(objCopy, object);
-                            } else {
-                                this[metaKey] = objCopy;
-                            }
-                        } else {
-                            let metaKey = metadataList && Object.keys(metadataList).find(metadata => metadataList[metadata]?.src == propertyName);
-                            if (metaKey) {
-                                const src = metadataList[metaKey].src || propertyName;
+                        let i: number;
+                        let objCopy = { ...object };
+                        for (i = 0; i < propsStereoid.length; i++) {
+                            if (propsStereoid[i].isArray) {
+                                let arrIndex = propsStereoid[i].arrIndex?.split(/\[(\w+)\]/g)?.filter(index => index !== '');
+                                objCopy = objCopy[propsStereoid[i].prop];
 
-                                if (metadataList[metaKey].transformer) {
-                                    this[metaKey] = metadataList[metaKey].transformer(object[src], object);
-                                } else {
-                                    this[metaKey] = object[src];
-                                }
+                                arrIndex.forEach((index, i) => {
+                                    objCopy = objCopy[index];
+                                });
                             } else {
-                                if (metadataList[propertyName]?.transformer) {
-                                    this[propertyName] = metadataList[propertyName].transformer(object[propertyName], object);
-                                } else {
-                                    this[propertyName] = object[propertyName];
-                                }
+                                objCopy = objCopy[propsStereoid[i].prop];
                             }
                         }
-                    });
-                } else {
-                    let metaKey = metadataList && Object.keys(metadataList).find(metadata => metadataList[metadata]?.src == propertyName);
-                    if (metaKey) {
-                        const src = metadataList[metaKey].src || propertyName;
 
-                        if (metadataList[metaKey].transformer) {
-                            this[metaKey] = metadataList[metaKey].transformer(object[src], object);
+                        if (metaProp?.transformer) {
+                            this[metaKey] = metaProp.transformer(objCopy, object);
                         } else {
-                            this[metaKey] = object[src];
+                            this[metaKey] = objCopy;
                         }
                     } else {
-                        if (metadataList && metadataList[propertyName]?.transformer) {
-                            this[propertyName] = metadataList[propertyName].transformer(object[propertyName], object);
+                        let metaKey = metadataList && Object.keys(metadataList).find(metadata => metadataList[metadata]?.src == propertyName);
+                        if (metaKey) {
+                            const src = metadataList[metaKey].src || propertyName;
+
+                            if (metadataList[metaKey].transformer) {
+                                this[metaKey] = metadataList[metaKey].transformer(object[src], object);
+                            } else {
+                                this[metaKey] = object[src];
+                            }
                         } else {
-                            this[propertyName] = object[propertyName];
+                            if (metadataList[propertyName]?.transformer) {
+                                this[propertyName] = metadataList[propertyName].transformer(object[propertyName], object);
+                            } else {
+                                this[propertyName] = object[propertyName];
+                            }
                         }
                     }
+                });
+            } else {
+                let metaKey = metadataList && Object.keys(metadataList).find(metadata => metadataList[metadata]?.src == propertyName);
+                if (metaKey) {
+                    const src = metadataList[metaKey].src || propertyName;
+
+                    if (metadataList[metaKey].transformer) {
+                        this[metaKey] = metadataList[metaKey].transformer(object[src], object);
+                    } else {
+                        this[metaKey] = object[src];
+                    }
+                } else {
+                    if (metadataList && metadataList[propertyName]?.transformer) {
+                        this[propertyName] = metadataList[propertyName].transformer(object[propertyName], object);
+                    } else {
+                        this[propertyName] = object[propertyName];
+                    }
                 }
-            });
+            }
+        });
 
         //MAP CASE initialize = true
-        Object.keys(metadataList).forEach(metaName => {
+        metadataList && Object.keys(metadataList).forEach(metaName => {
             if (metadataList[metaName]?.initialize && metadataList[metaName]?.transformer) {
                 this[metaName] = metadataList[metaName]?.transformer(null, object);
             }
@@ -104,7 +103,7 @@ export class MapperFactory {
         const metadataList: any = getMapFieldMetadataList(this);
 
         let obj = {};
-        Object.keys(this).forEach(propertyName => {
+        this && Object.keys(this).forEach(propertyName => {
             if (metadataList && Object.keys(metadataList).some(prop => prop == propertyName)) {
                 const src = metadataList[propertyName].src || propertyName;
 
@@ -158,7 +157,7 @@ export class MapperFactory {
                 } else {
                     if (metadataList[propertyName]?.initialize && metadataList[propertyName]?.reverser) {
                         const revObj = metadataList[propertyName]?.reverser(this[propertyName]);
-                        Object.keys(revObj).forEach(key => {
+                        revObj && Object.keys(revObj).forEach(key => {
                             obj[key] = revObj[key];
                         });
                     } else {
@@ -193,7 +192,7 @@ export class MapperFactory {
     objToModel(obj: Object) {
         const metadataList: any = getMapFieldMetadataList(this);
 
-        Object.keys(obj).forEach(propertyName => {
+        obj && Object.keys(obj).forEach(propertyName => {
             if (metadataList && Object.keys(metadataList).some(prop => prop == propertyName)) {
                 if (metadataList[propertyName].transformer) {
                     if (Array.isArray(obj[propertyName])) {
@@ -221,7 +220,7 @@ export class MapperFactory {
      */
     empty(): boolean {
         let check = true;
-        Object.keys(this).forEach(propertyName => {
+        this && Object.keys(this).forEach(propertyName => {
             if (this[propertyName] !== undefined && this[propertyName] !== null) {
                 check = false;
             }
