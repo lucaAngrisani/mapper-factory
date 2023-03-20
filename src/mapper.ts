@@ -12,7 +12,7 @@ export class MapperFactory {
         const metadataList: any = getMapFieldMetadataList(this);
 
         object && Object.keys(object).forEach(propertyName => {
-            let metaKeys = metadataList && Object.keys(metadataList).filter(metadata => metadataList[metadata]?.src?.startsWith(propertyName) && metadataList[metadata]?.src != propertyName);
+            let metaKeys = metadataList && Object.keys(metadataList).filter(metadata => metadataList[metadata]?.src?.split('.')?.includes(propertyName));
             if (metaKeys?.length) {
                 metaKeys.forEach(metaKey => {
                     let metaProp = metadataList[metaKey];
@@ -158,7 +158,8 @@ export class MapperFactory {
                     if (metadataList[propertyName]?.initialize && metadataList[propertyName]?.reverser) {
                         const revObj = metadataList[propertyName]?.reverser(this[propertyName]);
                         revObj && Object.keys(revObj).forEach(key => {
-                            obj[key] = revObj[key];
+                            if (revObj[key])
+                                obj[key] = revObj[key];
                         });
                     } else {
                         if (Array.isArray(this[propertyName]) && !metadataList[propertyName]?.reverser) {

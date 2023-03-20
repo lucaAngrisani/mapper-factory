@@ -9,6 +9,9 @@ class History extends MapperFactory {
     })
     name: string;
 
+    @MapField({
+        src: "control"
+    })
     testControl: string;
 
     @MapField({
@@ -19,6 +22,11 @@ class History extends MapperFactory {
         },
     })
     daysActive: string[];
+
+    @MapField({
+        src: "test.concatenation"
+    })
+    testConcatenation: string;
 }
 
 class User extends MapperFactory {
@@ -110,7 +118,15 @@ console.log(u);
 console.log(u.toMap());
 
 //TEST ref
-let hTest = new History({ monday: "0", tuesday: "1", testControl: "control" });
+console.log("\nTEST REF");
+let hTest = new History({ monday: "0", tuesday: "1", control: "control" });
 console.log(hTest)
 hTest.daysActive = ['1', '0'];
 console.log(hTest.toMap());
+
+
+//TEST concat with point
+console.log("\nTEST CONCAT W POINT");
+let hTest2 = new History({ test: { concatenation: "resolve " }, control: "control" });
+console.log(hTest2)
+console.log(hTest2.toMap());
