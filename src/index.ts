@@ -6,7 +6,7 @@ export { MapField, MapperFactory, ClassType };
 
 /**
  * npx tsc
- * npx ts-node examples/example.ts
+ * npx ts-node src/example.ts
  * npm version patch
  * npm publish
  */

@@ -1,15 +1,14 @@
 {
     "compilerOptions": {
         "module": "Node16",
-        "target": "ES2021",
+        "target": "es2020",
         "declaration": true,
         "outDir": "./dist",
         "emitDecoratorMetadata": true,
         "experimentalDecorators": true
     },
     "include": [
-        "./src/**/*",
-        "./examples/*"
+        "./src/**/*"
     ],
     "exclude": [
         "node_modules"
