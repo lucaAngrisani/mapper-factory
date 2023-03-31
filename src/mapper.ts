@@ -262,10 +262,11 @@ export class MapperFactory {
 
         let obj = this;
         let i: number;
-        for (i = 0; i < props?.length - 1; i++)
-            obj = obj[props[i]];
+        for (i = 0; i < props?.length - 1; i++) {
+            props?.[i] && (obj = obj?.[props?.[i]]);
+        }
 
-        obj[props[i]] = value;
+        props?.[i] && obj && (obj[props?.[i]] = value);
     }
 
 }

@@ -1,4 +1,6 @@
-import { MapField, MapperFactory } from "../dist/index";
+import { MapField } from "../src/field.decorator";
+import { MapperFactory } from "../src/mapper";
+
 
 class History extends MapperFactory {
     id: string;
@@ -46,13 +48,13 @@ class User extends MapperFactory {
 
     @MapField({
         src: 'rolesToMap',
-        transformer: (arr) => arr.map(role => role + " TEST TRASFORMER"),
-        reverser: (arr) => arr.map(role => role.replace(" TEST TRASFORMER", "")),
+        transformer: (arr) => arr?.map(role => role + " TEST TRASFORMER"),
+        reverser: (arr) => arr?.map(role => role.replace(" TEST TRASFORMER", "")),
     })
     roles?: string[];
 
     @MapField({
-        transformer: (arr) => arr.map(user => new User(user))
+        transformer: (arr) => arr?.map(user => new User(user))
     })
     employees?: User[];
 
@@ -62,8 +64,8 @@ class User extends MapperFactory {
     boss: User;
 
     @MapField({
-        transformer: histories => histories.map(hst => new History(hst)),
-        reverser: histories => histories.map(hst => hst.toMap()),
+        transformer: histories => histories?.map(hst => new History(hst)),
+        reverser: histories => histories?.map(hst => hst.toMap()),
     })
     histories: History[];
 
