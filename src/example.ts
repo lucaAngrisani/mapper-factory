@@ -26,13 +26,6 @@ class History extends MapperFactory {
     daysActive: string[];
 
     @MapField({
-        initialize: true,
-        transformer: (flBlockNar, obj) => obj.flBlockNar == '1',
-        reverser: (flBlockNar: boolean) => flBlockNar ? { flBlockNar: '1' } : { flBlockNar: '0' },
-    })
-    flBlockNar: boolean;
-
-    @MapField({
         src: "test.concatenation"
     })
     testConcatenation: string;
@@ -128,21 +121,14 @@ console.log(u.toMap());
 
 //TEST ref
 console.log("\nTEST REF");
-let hTest = new History({ monday: "0", tuesday: "1", control: "control", flBlockNar: '1' });
+let hTest = new History({ monday: "0", tuesday: "1", control: "control" });
 console.log(hTest)
 hTest.daysActive = ['1', '0'];
 console.log(hTest.toMap());
+
 
 //TEST concat with point
 console.log("\nTEST CONCAT W POINT");
 let hTest2 = new History({ test: { concatenation: "resolve " }, control: "control" });
 console.log(hTest2)
 console.log(hTest2.toMap());
-
-//TEST constructor
-console.log("\nTEST constructor");
-let constructorTest = new History({ test: { concatenation: "resolve " }, control: "control", testCase: "testCase" });
-constructorTest.objToModel({
-    asd: 'asd'
-})
-console.log(constructorTest);
