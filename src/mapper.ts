@@ -1,5 +1,5 @@
-import { getMapFieldMetadataList } from "./field.decorator"
-import { ClassType } from "./types"
+import { getMapFieldMetadataList } from "./field.decorator";
+import { ClassType } from "./types";
 
 export class MapperFactory {
     /**
@@ -166,10 +166,12 @@ export class MapperFactory {
                             obj[src] = this[propertyName].map(item => {
                                 return item?.toMap ? item.toMap() : item;
                             });
+                        } else if (metadataList[propertyName]?.reverser) {
+                            obj[src] = metadataList[propertyName].reverser(this[propertyName], this);
                         } else if (this[propertyName]?.toMap) {
                             obj[src] = this[propertyName]?.toMap();
                         } else {
-                            obj[src] = metadataList[propertyName]?.reverser ? metadataList[propertyName].reverser(this[propertyName], this) : this[propertyName];
+                            obj[src] = this[propertyName];
                         }
                     }
                 }
@@ -178,8 +180,6 @@ export class MapperFactory {
                     obj[propertyName] = (metadataList && metadataList[propertyName]?.reverser) ? metadataList[propertyName].reverser(this[propertyName], this) : this[propertyName];
             }
         });
-
-
 
         return obj;
     }
