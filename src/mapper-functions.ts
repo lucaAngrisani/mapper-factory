@@ -11,3 +11,7 @@ export function toModel<T extends MapperFactory>(obj: Object): T {
 export function objToModel<T extends MapperFactory>(model: MapperFactory, obj: Object): T {
     return model.objToModel(obj) as T;
 }
+
+export function copy<T extends MapperFactory>(model: MapperFactory): T {
+    return new MapperFactory(model.toMap()) as T;
+}
