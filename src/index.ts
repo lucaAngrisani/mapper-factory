@@ -1,8 +1,20 @@
 import { MapField } from "./field.decorator";
 import { MapperFactory } from "./mapper";
+import {
+    objToModel,
+    toMap,
+    toModel
+} from "./mapper-functions";
 import { ClassType } from "./types";
 
-export { MapField, MapperFactory, ClassType };
+export {
+    ClassType,
+    MapField,
+    MapperFactory,
+    objToModel,
+    toMap,
+    toModel
+};
 
 /**
  * npx tsc

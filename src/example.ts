@@ -1,3 +1,4 @@
+import { objToModel, toMap, toModel } from ".";
 import { MapField } from "../src/field.decorator";
 import { MapperFactory } from "../src/mapper";
 
@@ -126,9 +127,15 @@ console.log(hTest)
 hTest.daysActive = ['1', '0'];
 console.log(hTest.toMap());
 
-
 //TEST concat with point
 console.log("\nTEST CONCAT W POINT");
 let hTest2 = new History({ test: { concatenation: "resolve " }, control: "control" });
 console.log(hTest2)
 console.log(hTest2.toMap());
+
+//TEST FUNC MAPPER
+console.log("\nTEST FUNC MAPPER");
+console.log(emp1);
+console.log(toMap(emp1));
+console.log(toModel(toMap(emp1)));
+console.log(objToModel(emp1, { name: "test", surname: "prova" }));
