@@ -20,7 +20,7 @@ export function isClass(func: any): func is ClassType {
 }
 
 export function getPrototype(target: Record<string, unknown> | ClassType): any {
-    return isClass(target) || !target.prototype ? !target.constructor ? target : target.constructor : target.prototype;
+    return isClass(target) || !target?.prototype ? !target?.constructor ? target : target?.constructor : target?.prototype;
 }
 
 export const MapField = <T = any>({

@@ -1,7 +1,7 @@
 import { objToModel, toMap, toModel } from ".";
+import { MapperFactory as MapperFactoryDecorator, MapperInterface } from "../src/class.decorator";
 import { MapField } from "../src/field.decorator";
 import { MapperFactory } from "../src/mapper";
-
 
 class History extends MapperFactory {
     id: string;
@@ -81,29 +81,35 @@ let u = new User(JSONObject);
 console.log("\nTEST constructor");
 console.log(JSONObject);
 console.log(u);
+console.log("\n\n");
 
 //TEST objToModel method with JS Object
 let u1 = new User();
 console.log("\nTEST objToModel method with JS Object");
 console.log(u1.objToModel(u));
+console.log("\n\n");
 
 //TEST objToModel method with JSON Object
 console.log("\nTEST objToModel method with JSON Object");
 console.log(u.objToModel({ name: "Rick TEST-objToModel", roles: ["CEO TEST-objToModel", "EMPLOYEE TEST-objToModel"] }));
+console.log("\n\n");
 
 //TEST toMap method
 console.log("\nTEST toMap method");
 console.log(u.toMap());
+console.log("\n\n");
 
 //TEST empty method
 console.log("\nTEST empty method");
 console.log(u.empty());
+console.log("\n\n");
 
 //TEST get AND set method
 u.set("employees[1].name", "name editato");
 console.log("\nTEST get AND set method");
 console.log(u);
 console.log(u.get("employees[1].name"));
+console.log("\n\n");
 
 //TEST deep copy
 console.log("\nTEST deep copy");
@@ -111,6 +117,7 @@ let dpCopy = new User(u.toMap());
 dpCopy.name = "nome dpCopy";
 console.log(u);
 console.log(dpCopy);
+console.log("\n\n");
 
 //TEST trasformer/reverser
 console.log("\nTEST reverser");
@@ -119,6 +126,7 @@ let h2 = new History({ name: "h2" });
 u.histories = [h1, h2];
 console.log(u);
 console.log(u.toMap());
+console.log("\n\n");
 
 //TEST ref
 console.log("\nTEST REF");
@@ -126,16 +134,49 @@ let hTest = new History({ monday: "0", tuesday: "1", control: "control" });
 console.log(hTest)
 hTest.daysActive = ['1', '0'];
 console.log(hTest.toMap());
+console.log("\n\n");
 
 //TEST concat with point
 console.log("\nTEST CONCAT W POINT");
 let hTest2 = new History({ test: { concatenation: "resolve " }, control: "control" });
 console.log(hTest2)
 console.log(hTest2.toMap());
+console.log("\n\n");
 
 //TEST FUNC MAPPER
 console.log("\nTEST FUNC MAPPER");
 console.log(emp1);
 console.log(toMap(emp1));
-console.log(toModel(toMap(emp1)));
+const testEmp = toModel<User>(toMap(emp1));
+console.log("USER MODEL: ", testEmp);
 console.log(objToModel(emp1, { name: "test", surname: "prova" }));
+console.log("\n\n");
+
+//TEST NEW MapperFactory
+console.log("\nTEST NEW MapperFactory");
+
+
+@MapperFactoryDecorator()
+class Test {
+    @MapField({
+        src: 'b',
+        transformer: value => 'test transformer',
+        reverser: value => ({ a: 'test reverser' }),
+        initialize: true,
+    })
+    a: string;
+}
+interface Test extends MapperInterface<Test> { }
+
+const test = new Test().from();
+console.log("TEST 1: ", test);
+console.log("EMPTY: ", test.empty());
+console.log("FILLED: ", test.filled());
+
+test.from({ b: 'filled' });
+console.log("TEST 2: ", test);
+console.log("EMPTY: ", test.empty());
+console.log("FILLED: ", test.filled());
+console.log("TO MODEL: ", test.toModel({ a: 'test to model' }));
+console.log("TO MAP: ", test.toMap());
+console.log("\n\n");
