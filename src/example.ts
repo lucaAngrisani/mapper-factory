@@ -1,5 +1,5 @@
 import { objToModel, toMap, toModel } from ".";
-import { MapperFactory as MapperFactoryDecorator, MapperInterface } from "../src/class.decorator";
+import { MapClass, MapInterface } from "../src/class.decorator";
 import { MapField } from "../src/field.decorator";
 import { MapperFactory } from "../src/mapper";
 
@@ -156,7 +156,7 @@ console.log("\n\n");
 console.log("\nTEST NEW MapperFactory");
 
 
-@MapperFactoryDecorator()
+@MapClass()
 class Test {
     @MapField({
         src: 'b',
@@ -166,7 +166,7 @@ class Test {
     })
     a: string;
 }
-interface Test extends MapperInterface<Test> { }
+interface Test extends MapInterface<Test> { }
 
 const test = new Test().from();
 console.log("TEST 1: ", test);

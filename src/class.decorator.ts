@@ -1,6 +1,6 @@
 import { constructorMap, copy, empty, filled, get, objToModel, set, toMap } from "../src/functions";
 
-export function MapperFactory() {
+export function MapClass() {
 
     return function (constructor) {
         constructor.prototype.from = constructorMap;
@@ -15,7 +15,7 @@ export function MapperFactory() {
 
 }
 
-export interface MapperInterface<T> {
+export interface MapInterface<T> {
     from: (object?: any) => T;
     toMap: () => any;
     toModel: (object: any) => T;

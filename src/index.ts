@@ -1,3 +1,4 @@
+import { MapClass, MapInterface } from "./class.decorator";
 import { MapField } from "./field.decorator";
 import { MapperFactory } from "./mapper";
 import {
@@ -8,8 +9,7 @@ import {
 import { ClassType } from "./types";
 
 export {
-    ClassType,
-    MapField,
+    ClassType, MapClass, MapField, MapInterface,
     MapperFactory,
     objToModel,
     toMap,
