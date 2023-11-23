@@ -1,4 +1,4 @@
-import { constructorMap, copy, empty, filled, get, objToModel, set, toMap } from "../src/functions";
+import { constructorMap, copy, empty, filled, get, objToModel, set, toMap } from "./functions";
 
 export function MapClass() {
 
