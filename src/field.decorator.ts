@@ -4,7 +4,7 @@ import { ClassType } from './types';
 export const MAP_FIELD = Symbol('MAP_FIELD');
 
 export interface MapperMetadata<T = any> {
-    src?: string;
+    src?: keyof T;
     initialize?: boolean;
     transformer?: { (input: any, ref: any): any };
     reverser?: { (input: any): any };
