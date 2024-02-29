@@ -168,7 +168,7 @@ class Test {
 }
 interface Test extends MapInterface<Test> { }
 
-const test = new Test().from();
+const test = new Test().from(/** INSIDE HERE YOUR OBJECT TO MAP */);
 console.log("TEST 1: ", test);
 console.log("EMPTY: ", test.empty());
 console.log("FILLED: ", test.filled());
