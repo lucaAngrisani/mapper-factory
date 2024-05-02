@@ -200,7 +200,7 @@ export function set(path: string, value: any) {
  * Deep copy of the object caller
  */
 export function copy<T>(): T {
-    return this.constructorMap(this.toMap());
+    return this.from(this.toMap());
 }
 
 /**
@@ -208,7 +208,7 @@ export function copy<T>(): T {
  * 
  * @param object object to be mapped considering metadata "src", "transformer" and "reverser"
  */
-export function constructorMap(object: any) {
+export function from(object: any) {
     const metadataList: any = getMapFieldMetadataList(this);
 
     object && Object.keys(object).forEach(propertyName => {

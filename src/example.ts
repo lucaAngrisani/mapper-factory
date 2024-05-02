@@ -155,7 +155,6 @@ console.log("\n\n");
 //TEST NEW MapperFactory
 console.log("\nTEST NEW MapperFactory");
 
-
 @MapClass()
 class Test {
     @MapField({
@@ -179,4 +178,5 @@ console.log("EMPTY: ", test.empty());
 console.log("FILLED: ", test.filled());
 console.log("TO MODEL: ", test.toModel({ a: 'test to model' }));
 console.log("TO MAP: ", test.toMap());
+console.log("COPY: ", test.copy());
 console.log("\n\n");

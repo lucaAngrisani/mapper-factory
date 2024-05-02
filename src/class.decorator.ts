@@ -1,9 +1,9 @@
-import { constructorMap, copy, empty, filled, get, objToModel, set, toMap } from "./functions";
+import { copy, empty, filled, from, get, objToModel, set, toMap } from "./functions";
 
 export function MapClass() {
 
     return function (constructor) {
-        constructor.prototype.from = constructorMap;
+        constructor.prototype.from = from;
         constructor.prototype.toMap = toMap;
         constructor.prototype.toModel = objToModel;
         constructor.prototype.empty = empty;
