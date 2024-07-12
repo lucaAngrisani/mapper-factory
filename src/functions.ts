@@ -68,17 +68,17 @@ export function toMap(): any {
                             obj[key] = revObj[key];
                     });
                 } else {*/
-                    if (Array.isArray(this[propertyName]) && !metadataList[propertyName]?.reverser) {
-                        obj[src] = this[propertyName].map(item => {
-                            return item?.toMap ? item.toMap() : item;
-                        });
-                    } else if (metadataList[propertyName]?.reverser) {
-                        obj[src] = metadataList[propertyName].reverser(this[propertyName], this);
-                    } else if (this[propertyName]?.toMap) {
-                        obj[src] = this[propertyName]?.toMap();
-                    } else {
-                        obj[src] = this[propertyName];
-                    }
+                if (Array.isArray(this[propertyName]) && !metadataList[propertyName]?.reverser) {
+                    obj[src] = this[propertyName].map(item => {
+                        return item?.toMap ? item.toMap() : item;
+                    });
+                } else if (metadataList[propertyName]?.reverser) {
+                    obj[src] = metadataList[propertyName].reverser(this[propertyName], this);
+                } else if (this[propertyName]?.toMap) {
+                    obj[src] = this[propertyName]?.toMap();
+                } else {
+                    obj[src] = this[propertyName];
+                }
                 /*}*/
             }
         } else {
@@ -288,7 +288,7 @@ export function from(object: any) {
 
     //MAP CASE initialize = true
     metadataList && Object.keys(metadataList).forEach(metaName => {
-        if (metadataList[metaName]?.initialize && metadataList[metaName]?.transformer) {
+        if (metadataList[metaName]?.initialize && metadataList[metaName]?.transformer && this[metaName] == undefined) {
             this[metaName] = metadataList[metaName]?.transformer(null, object);
         }
     });

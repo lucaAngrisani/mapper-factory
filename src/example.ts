@@ -180,3 +180,27 @@ console.log("TO MODEL: ", test.toModel({ a: 'test to model' }));
 console.log("TO MAP: ", test.toMap());
 console.log("COPY: ", test.copy());
 console.log("\n\n");
+
+//TEST TestFlag with initialize
+console.log("\nTEST TestFlag with initialize");
+
+@MapClass()
+class TestFlag {
+    @MapField({
+        transformer: (num) => num == '1',
+        reverser: bool => bool ? '1' : '0',
+        initialize: true,
+    })
+    flTest: string;
+}
+interface TestFlag extends MapInterface<TestFlag> { }
+
+const testFlag0 = new TestFlag().from({ flTest: '0' });
+console.log("TEST FLAG0", testFlag0);
+console.log("TO MAP: ", testFlag0.toMap());
+
+const testFlag1 = new TestFlag().from({ flTest: '1' });
+console.log("TEST FLAG1", testFlag1);
+console.log("TO MAP: ", testFlag1.toMap());
+
+console.log("\n\n");

@@ -88,7 +88,7 @@ export class MapperFactory {
 
         //MAP CASE initialize = true
         metadataList && Object.keys(metadataList).forEach(metaName => {
-            if (metadataList[metaName]?.initialize && metadataList[metaName]?.transformer) {
+            if (metadataList[metaName]?.initialize && metadataList[metaName]?.transformer && this[metaName] == undefined) {
                 this[metaName] = metadataList[metaName]?.transformer(null, object);
             }
         });
