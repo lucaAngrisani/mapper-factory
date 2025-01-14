@@ -1,4 +1,4 @@
-import { MapperFactory } from "./mapper";
+import { MapperFactory } from "./mapper.to-remove";
 
 export function toMap(model: MapperFactory): Object {
     return model.toMap();

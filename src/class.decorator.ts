@@ -21,7 +21,7 @@ export interface MapInterface<T> {
     toModel: (object: any) => T;
     empty: () => boolean;
     filled: () => boolean;
-    get: (path: string) => T;
+    get: (path: string) => any;
     set: (path: string, value: any) => void;
     copy: () => T;
 }

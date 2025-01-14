@@ -7,83 +7,54 @@ import { getMapFieldMetadataList } from "./field.decorator";
 */
 export function toMap(): any {
     const metadataList: any = getMapFieldMetadataList(this);
-
     let obj = {};
-    this && Object.keys(this).forEach(propertyName => {
-        if (metadataList && Object.keys(metadataList).some(prop => prop == propertyName)) {
-            const src = metadataList[propertyName].src || propertyName;
 
-            if (src.includes('.')) {
-                let props: string[] = src.split('.');
-                let propsStereoid = props.map(prop => {
-                    let index = prop.indexOf('[');
-                    return {
-                        prop: index > 0 ? prop.substring(0, index) : prop,
-                        isArray: prop.includes('[') && prop.includes(']'),
-                        arrIndex: prop.substring(index),
-                    }
+    const processProperty = (objCopy: any, propsStereoid: any[], value: any, reverser: any) => {
+        let lastIndex: string;
+        for (let i = 0; i < propsStereoid.length; i++) {
+            const prop = propsStereoid[i];
+            if (prop.isArray) {
+                let arrIndex = prop.arrIndex.split(/\[(\w+)\]/g).filter(index => index !== '');
+                objCopy[prop.prop] = objCopy[prop.prop] || [];
+                objCopy = objCopy[prop.prop];
+                arrIndex.forEach((index, i) => {
+                    objCopy[index] = objCopy[index] || (i == arrIndex.length - 1 ? {} : []);
+                    if (i != arrIndex.length - 1) objCopy = objCopy[index];
+                    else lastIndex = index;
                 });
-
-                let i: number;
-                let objCopy = obj;
-                let lastIndex: string;
-                for (i = 0; i < propsStereoid?.length; i++) {
-                    if (propsStereoid[i].isArray) {
-                        let arrIndex = propsStereoid[i].arrIndex?.split(/\[(\w+)\]/g)?.filter(index => index !== '');
-                        objCopy[propsStereoid[i].prop] = objCopy[propsStereoid[i].prop] || [];
-                        objCopy = objCopy[propsStereoid[i].prop];
-
-                        arrIndex.forEach((index, i) => {
-                            objCopy[index] = objCopy[index] || (i == arrIndex.length - 1 ? {} : []);
-                            if (!(i == propsStereoid.length - 1))
-                                objCopy = objCopy[index];
-                            else
-                                lastIndex = index;
-                        });
-                    } else {
-                        objCopy[propsStereoid[i].prop] = objCopy[propsStereoid[i].prop] || {};
-                        if (!(i == propsStereoid?.length - 1))
-                            objCopy = objCopy[propsStereoid[i].prop];
-                        else
-                            lastIndex = propsStereoid[i].prop;
-                    }
-                }
-
-                if (Array.isArray(this[propertyName])) {
-                    objCopy[lastIndex] = metadataList[propertyName].reverser ?
-                        metadataList[propertyName].reverser(this[propertyName], this)
-                        : this[propertyName].map(item => {
-                            return item?.toMap ? item.toMap() : item;
-                        });
-                } else if (metadataList[propertyName].toMap) {
-                    objCopy[lastIndex] = this[propertyName]?.toMap();
-                } else {
-                    objCopy[lastIndex] = metadataList[propertyName].reverser ? metadataList[propertyName].reverser(this[propertyName], this) : this[propertyName];
-                }
             } else {
-                /*if (metadataList[propertyName]?.initialize && metadataList[propertyName]?.reverser) {
-                    const revObj = metadataList[propertyName]?.reverser(this[propertyName]);
-                    revObj && Object.keys(revObj).forEach(key => {
-                        if (revObj[key])
-                            obj[key] = revObj[key];
-                    });
-                } else {*/
-                if (Array.isArray(this[propertyName]) && !metadataList[propertyName]?.reverser) {
-                    obj[src] = this[propertyName].map(item => {
-                        return item?.toMap ? item.toMap() : item;
-                    });
-                } else if (metadataList[propertyName]?.reverser) {
-                    obj[src] = metadataList[propertyName].reverser(this[propertyName], this);
-                } else if (this[propertyName]?.toMap) {
-                    obj[src] = this[propertyName]?.toMap();
-                } else {
-                    obj[src] = this[propertyName];
-                }
-                /*}*/
+                objCopy[prop.prop] = objCopy[prop.prop] || {};
+                if (i != propsStereoid.length - 1) objCopy = objCopy[prop.prop];
+                else lastIndex = prop.prop;
+            }
+        }
+        objCopy[lastIndex] = reverser ? reverser(value, this) : value;
+    };
+
+    this && Object.keys(this).forEach(propertyName => {
+        const metadata = metadataList && metadataList[propertyName];
+        const src = metadata?.src || propertyName;
+
+        if (metadata) {
+            if (src.includes('.')) {
+                let props = src.split('.');
+                let propsStereoid = props.map(prop => ({
+                    prop: prop.includes('[') ? prop.substring(0, prop.indexOf('[')) : prop,
+                    isArray: prop.includes('[') && prop.includes(']'),
+                    arrIndex: prop.substring(prop.indexOf('[')),
+                }));
+                processProperty(obj, propsStereoid, this[propertyName], metadata.reverser);
+            } else {
+                obj[src] = Array.isArray(this[propertyName]) && !metadata.reverser
+                    ? this[propertyName].map(item => item?.toMap ? item.toMap() : item)
+                    : metadata.reverser
+                        ? metadata.reverser(this[propertyName], this)
+                        : this[propertyName]?.toMap
+                            ? this[propertyName].toMap()
+                            : this[propertyName];
             }
         } else {
-            if (!obj[propertyName])
-                obj[propertyName] = (metadataList && metadataList[propertyName]?.reverser) ? metadataList[propertyName].reverser(this[propertyName], this) : this[propertyName];
+            obj[propertyName] = this[propertyName];
         }
     });
 
@@ -97,24 +68,14 @@ export function toMap(): any {
  * @returns Instance of this class
  */
 export function objToModel(obj: Object) {
-    const metadataList: any = getMapFieldMetadataList(this);
+    if (!obj) return this;
 
-    obj && Object.keys(obj).forEach(propertyName => {
-        if (metadataList && Object.keys(metadataList).some(prop => prop == propertyName)) {
-            if (metadataList[propertyName].transformer) {
-                if (Array.isArray(obj[propertyName])) {
-                    this[propertyName] = obj[propertyName].map(item => {
-                        return item;
-                    });
-                } else {
-                    this[propertyName] = obj[propertyName];
-                }
-            } else {
-                this[propertyName] = obj[propertyName];
-            }
-        } else {
-            this[propertyName] = obj[propertyName];
-        }
+    Object.keys(obj).forEach(propertyName => {
+        const value = obj[propertyName];
+
+        this[propertyName] = Array.isArray(value)
+            ? value.map(item => item)
+            : value;
     });
 
     return this;
@@ -126,15 +87,7 @@ export function objToModel(obj: Object) {
  * @returns true or false
  */
 export function empty(): boolean {
-    let check = true;
-    this && Object.keys(this).forEach(propertyName => {
-        if (this[propertyName] !== undefined && this[propertyName] !== null) {
-            check = false;
-            return;
-        }
-    });
-
-    return check;
+    return !Object.keys(this).some(propertyName => this[propertyName] !== undefined && this[propertyName] !== null);
 }
 
 /**
@@ -143,18 +96,7 @@ export function empty(): boolean {
  * @returns true or false
  */
 export function filled(): boolean {
-    if (Object.keys(this)?.length == 0)
-        return false;
-
-    let check = true;
-    this && Object.keys(this).forEach(propertyName => {
-        if (this[propertyName] === undefined || this[propertyName] === null) {
-            check = false;
-            return;
-        }
-    });
-
-    return check;
+    return Object.keys(this).length > 0 && Object.keys(this).every(propertyName => this[propertyName] !== undefined && this[propertyName] !== null);
 }
 
 /**
@@ -164,17 +106,8 @@ export function filled(): boolean {
  * @returns Value of the property
  */
 export function get<T>(path: string): T {
-    let pathReplaced = path.replace(/\[(\w+)\]/g, '.$1');
-    let props: string[] = pathReplaced.split('.');
-    let rtn: any
-    if (props?.length) {
-        rtn = this[props[0]];
-        for (let index in props) {
-            if (+index > 0)
-                rtn = rtn && rtn[props[index]];
-        }
-    }
-    return <T>rtn;
+    const props = path.replace(/\[(\w+)\]/g, '.$1').split('.');
+    return props.reduce((acc, prop) => acc && acc[prop], this) as T;
 }
 
 /**
@@ -184,16 +117,15 @@ export function get<T>(path: string): T {
  * @param value Value of the property
  */
 export function set(path: string, value: any) {
-    path = path.replace(/\[(\w+)\]/g, '.$1');
-    let props: string[] = path.split('.');
-
+    const props = path.replace(/\[(\w+)\]/g, '.$1').split('.');
     let obj = this;
-    let i: number;
-    for (i = 0; i < props?.length - 1; i++) {
-        props?.[i] && (obj = obj?.[props?.[i]]);
-    }
 
-    props?.[i] && obj && (obj[props?.[i]] = value);
+    props.slice(0, -1).forEach(prop => {
+        if (!obj[prop]) obj[prop] = {};
+        obj = obj[prop];
+    });
+
+    obj[props[props.length - 1]] = value;
 }
 
 /**
@@ -211,85 +143,62 @@ export function copy<T>(): T {
 export function from(object: any) {
     const metadataList: any = getMapFieldMetadataList(this);
 
+    const processProperty = (objCopy: any, propsStereoid: any[]) => {
+        for (let i = 0; i < propsStereoid.length; i++) {
+            const prop = propsStereoid[i];
+            if (prop.isArray) {
+                let arrIndex = prop.arrIndex.split(/\[(\w+)\]/g).filter(index => index !== '');
+                objCopy = objCopy[prop.prop];
+                arrIndex.forEach(index => {
+                    objCopy = objCopy[index];
+                });
+            } else {
+                objCopy = objCopy[prop.prop];
+            }
+        }
+        return objCopy;
+    };
+
+    const setProperty = (metaKey: string, value: any, object: any) => {
+        const metaProp = metadataList[metaKey];
+        if (metaProp?.transformer) {
+            this[metaKey] = metaProp.transformer(value, object);
+        } else {
+            this[metaKey] = value;
+        }
+    };
+
     object && Object.keys(object).forEach(propertyName => {
         let metaKeys = metadataList && Object.keys(metadataList).filter(metadata => metadataList[metadata]?.src?.split('.')?.includes(propertyName));
         if (metaKeys?.length) {
             metaKeys.forEach(metaKey => {
-                let metaProp = metadataList[metaKey];
+                const metaProp = metadataList[metaKey];
                 if (metaProp) {
-                    let props: string[] = metaProp.src?.split('.');
-                    let propsStereoid = props.map(prop => {
-                        let index = prop.indexOf('[');
-                        return {
-                            prop: index > 0 ? prop.substring(0, index) : prop,
-                            isArray: prop.includes('[') && prop.includes(']'),
-                            arrIndex: prop.substring(index),
-                        }
-                    });
-
-                    let i: number;
-                    let objCopy = { ...object };
-                    for (i = 0; i < propsStereoid.length; i++) {
-                        if (propsStereoid[i].isArray) {
-                            let arrIndex = propsStereoid[i].arrIndex?.split(/\[(\w+)\]/g)?.filter(index => index !== '');
-                            objCopy = objCopy[propsStereoid[i].prop];
-
-                            arrIndex.forEach((index, i) => {
-                                objCopy = objCopy[index];
-                            });
-                        } else {
-                            objCopy = objCopy[propsStereoid[i].prop];
-                        }
-                    }
-
-                    if (metaProp?.transformer) {
-                        this[metaKey] = metaProp.transformer(objCopy, object);
-                    } else {
-                        this[metaKey] = objCopy;
-                    }
-                } else {
-                    let metaKey = metadataList && Object.keys(metadataList).find(metadata => metadataList[metadata]?.src == propertyName);
-                    if (metaKey) {
-                        const src = metadataList[metaKey].src || propertyName;
-
-                        if (metadataList[metaKey].transformer) {
-                            this[metaKey] = metadataList[metaKey].transformer(object[src], object);
-                        } else {
-                            this[metaKey] = object[src];
-                        }
-                    } else {
-                        if (metadataList[propertyName]?.transformer) {
-                            this[propertyName] = metadataList[propertyName].transformer(object[propertyName], object);
-                        } else {
-                            this[propertyName] = object[propertyName];
-                        }
-                    }
+                    const props = metaProp.src.split('.');
+                    const propsStereoid = props.map(prop => ({
+                        prop: prop.includes('[') ? prop.substring(0, prop.indexOf('[')) : prop,
+                        isArray: prop.includes('[') && prop.includes(']'),
+                        arrIndex: prop.substring(prop.indexOf('[')),
+                    }));
+                    const value = processProperty({ ...object }, propsStereoid);
+                    setProperty(metaKey, value, object);
                 }
             });
         } else {
             let metaKey = metadataList && Object.keys(metadataList).find(metadata => metadataList[metadata]?.src == propertyName);
             if (metaKey) {
                 const src = metadataList[metaKey].src || propertyName;
-
-                if (metadataList[metaKey].transformer) {
-                    this[metaKey] = metadataList[metaKey].transformer(object[src], object);
-                } else {
-                    this[metaKey] = object[src];
-                }
+                setProperty(metaKey, object[src], object);
             } else {
-                if (metadataList && metadataList[propertyName]?.transformer) {
-                    this[propertyName] = metadataList[propertyName].transformer(object[propertyName], object);
-                } else {
-                    this[propertyName] = object[propertyName];
-                }
+                setProperty(propertyName, object[propertyName], object);
             }
         }
     });
 
-    //MAP CASE initialize = true
+    // Initialize properties with "initialize" metadata
     metadataList && Object.keys(metadataList).forEach(metaName => {
-        if (metadataList[metaName]?.initialize && metadataList[metaName]?.transformer && this[metaName] == undefined) {
-            this[metaName] = metadataList[metaName]?.transformer(null, object);
+        if (metadataList[metaName]?.initialize && metadataList[metaName]?.transformer && this[metaName] === undefined) {
+            this[metaName] = metadataList[metaName].transformer(null, object);
         }
     });
 

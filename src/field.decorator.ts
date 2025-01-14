@@ -8,8 +8,6 @@ export interface MapperMetadata<T = any> {
     initialize?: boolean;
     transformer?: { (input: any, ref: any): any };
     reverser?: { (input: any): any };
-
-    //   _propertyName?: string;
 }
 
 export function isClass(func: any): func is ClassType {
