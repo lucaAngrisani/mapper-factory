@@ -79,11 +79,18 @@ interface User extends MapInterface<User> { }
 
 const emp1: User = new User().from({ firstName: "Summer", lastName: "Smith" });
 const emp2: User = new User().from({ firstName: "Morty", lastName: "Smith" });
-const JSONObject = { firstName: "Rick", lastName: "Sanchez", employees: [emp1.toMap(), emp2.toMap()], rolesToMap: ["CEO", "EMPLOYEE"], boss: { firstName: "Nello", lastName: "Stanco" } };
+const JSONObject = { username: 'god', firstName: "Rick", lastName: "Sanchez", employees: [emp1.toMap(), emp2.toMap()], rolesToMap: ["CEO", "EMPLOYEE"], boss: { firstName: "Nello", lastName: "Stanco" } };
 
 //TEST constructor
 const u = new User().from(JSONObject);
-const constructorTest: boolean = u.name == JSONObject.firstName && u.surname == JSONObject.lastName && u.employees?.map(emp => emp.name == emp1.name) && u.roles?.map(role => role == "CEO") && u.boss.name == "Nello" && u.boss.surname == "Stanco";
+const constructorTest: boolean =
+    u.username == JSONObject.username &&
+    u.name == JSONObject.firstName &&
+    u.surname == JSONObject.lastName &&
+    u.employees?.map(emp => emp.name == emp1.name) &&
+    u.roles?.map(role => role == "CEO") &&
+    u.boss.name == "Nello" &&
+    u.boss.surname == "Stanco";
 console.log("TEST CONSTRUCTOR", constructorTest ? '✅' : '❌');
 
 //TEST toModel method with JS Object
@@ -174,5 +181,20 @@ console.log("TEST FLAG1", (testFlag1.flTest && testFlag1Map.flTest == '1') ? '�
 const testFlag2 = new TestFlag().from({ flTest: '0' });
 const testFlag2Map = testFlag2.toMap();
 console.log("TEST FLAG2", (!testFlag2.flTest && testFlag2Map.flTest == '0') ? '✅' : '❌');
+
+@MapClass()
+class TestWithoutMapField {
+    id?: string;
+    name!: string;
+}
+interface TestWithoutMapField extends MapInterface<TestWithoutMapField> { }
+
+const JSONObject2 = {
+    id: '1',
+    name: 'Supplier 1',
+};
+const supplier = new TestWithoutMapField().from(JSONObject2);
+
+console.log("TEST WITHOUT MAP FIELD", (supplier) ? '✅' : '❌');
 
 console.log("\n");

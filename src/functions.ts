@@ -160,7 +160,7 @@ export function from(object: any) {
     };
 
     const setProperty = (metaKey: string, value: any, object: any) => {
-        const metaProp = metadataList[metaKey];
+        const metaProp = metadataList?.[metaKey];
         if (metaProp?.transformer) {
             this[metaKey] = metaProp.transformer(value, object);
         } else {
@@ -172,7 +172,7 @@ export function from(object: any) {
         let metaKeys = metadataList && Object.keys(metadataList).filter(metadata => metadataList[metadata]?.src?.split('.')?.includes(propertyName));
         if (metaKeys?.length) {
             metaKeys.forEach(metaKey => {
-                const metaProp = metadataList[metaKey];
+                const metaProp = metadataList?.[metaKey];
                 if (metaProp) {
                     const props = metaProp.src.split('.');
                     const propsStereoid = props.map(prop => ({
@@ -187,7 +187,7 @@ export function from(object: any) {
         } else {
             let metaKey = metadataList && Object.keys(metadataList).find(metadata => metadataList[metadata]?.src == propertyName);
             if (metaKey) {
-                const src = metadataList[metaKey].src || propertyName;
+                const src = metadataList?.[metaKey].src || propertyName;
                 setProperty(metaKey, object[src], object);
             } else {
                 setProperty(propertyName, object[propertyName], object);
