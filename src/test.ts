@@ -188,13 +188,12 @@ class TestWithoutMapField {
     name!: string;
 }
 interface TestWithoutMapField extends MapInterface<TestWithoutMapField> { }
-
 const JSONObject2 = {
     id: '1',
     name: 'Supplier 1',
 };
-const supplier = new TestWithoutMapField().from(JSONObject2);
+const testWOMF = new TestWithoutMapField().from(JSONObject2);
 
-console.log("TEST WITHOUT MAP FIELD", (supplier) ? '✅' : '❌');
+console.log("TEST WITHOUT MAP FIELD", (testWOMF) ? '✅' : '❌');
 
 console.log("\n");

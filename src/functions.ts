@@ -54,7 +54,8 @@ export function toMap(): any {
                             : this[propertyName];
             }
         } else {
-            obj[propertyName] = this[propertyName];
+            if (this[propertyName] != undefined)
+                obj[propertyName] = this[propertyName];
         }
     });
 
@@ -162,9 +163,12 @@ export function from(object: any) {
     const setProperty = (metaKey: string, value: any, object: any) => {
         const metaProp = metadataList?.[metaKey];
         if (metaProp?.transformer) {
-            this[metaKey] = metaProp.transformer(value, object);
+            const valueTransformed = metaProp.transformer(value, object);
+            if (valueTransformed != undefined)
+                this[metaKey] = valueTransformed;
         } else {
-            this[metaKey] = value;
+            if (value != undefined)
+                this[metaKey] = value;
         }
     };
 
