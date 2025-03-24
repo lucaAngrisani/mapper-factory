@@ -8,7 +8,7 @@ export {
 
 /**
  * npx tsc
- * npx ts-node src/example.ts
+ * npx ts-node src/test.ts
  * npm version ( patch | minor | major )  
  * npm publish
  */
