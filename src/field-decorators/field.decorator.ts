@@ -1,5 +1,5 @@
 import 'reflect-metadata';
-import { ClassType } from './types';
+import { ClassType } from '../types';
 
 export const MAP_FIELD = Symbol('MAP_FIELD');
 
