@@ -253,7 +253,7 @@ console.log("TEST WITHOUT MAP FIELD", testWOMF ? "✅" : "❌");
 @MapClass()
 class ObjDecorator {
   id: string;
-  @ObjectField(() => ObjDecorator)
+  @ObjectField(ObjDecorator)
   testObject?: ObjDecorator;
 }
 interface ObjDecorator extends MapInterface<ObjDecorator> {}
@@ -263,10 +263,10 @@ class TestDecorators {
   @DateField()
   date?: Date;
 
-  @ArrayField(() => ObjDecorator)
+  @ArrayField(ObjDecorator)
   objList!: ObjDecorator[];
 
-  @ObjectField(() => ObjDecorator)
+  @ObjectField(ObjDecorator)
   obj!: ObjDecorator;
 }
 interface TestDecorators extends MapInterface<TestDecorators> {}

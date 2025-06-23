@@ -2,9 +2,9 @@ import { MapInterface } from "../class.decorator";
 import { MapField } from "./field.decorator";
 
 export function ArrayField<T extends MapInterface<T>>(
-  clsFactory: () => new () => T
+  clsFactory: new () => T
 ): PropertyDecorator {
-  const Ctor = clsFactory();
+  const Ctor = clsFactory;
 
   return MapField({
     transformer: (arr: any[]) =>
