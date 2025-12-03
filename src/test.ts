@@ -260,7 +260,7 @@ interface ObjDecorator extends MapInterface<ObjDecorator> {}
 
 @MapClass()
 class TestDecorators {
-  @DateField()
+  @DateField({ src: "dateSrc" })
   date?: Date;
 
   @ArrayField(ObjDecorator)
@@ -272,7 +272,7 @@ class TestDecorators {
 interface TestDecorators extends MapInterface<TestDecorators> {}
 
 const JSONTestDecorators = {
-  date: "2023-10-01T00:00:00Z",
+  dateSrc: "2023-10-01T00:00:00Z",
   objList: [
     { id: "1", testObject: { id: "2" } },
     { id: "3", testObject: { id: "4" } },
@@ -280,12 +280,15 @@ const JSONTestDecorators = {
   obj: { id: "5", testObject: { id: "6" } },
 };
 const testDecorators = new TestDecorators().from(JSONTestDecorators);
-console.log("TEST WITH DECORATORS", (
-    testDecorators.date.toISOString() &&
-    testDecorators.objList?.length === 2 &&  
+console.log(
+  "TEST WITH DECORATORS",
+  testDecorators.date.toISOString() &&
+    testDecorators.objList?.length === 2 &&
     testDecorators.obj instanceof ObjDecorator &&
     testDecorators.objList[0] instanceof ObjDecorator &&
     testDecorators.objList[0].testObject instanceof ObjDecorator
-) ? "✅" : "❌");
+    ? "✅"
+    : "❌"
+);
 
 console.log("\n");
