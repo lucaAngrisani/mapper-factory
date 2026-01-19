@@ -17,7 +17,7 @@ export {
 
 /**
  * npx tsc
- * npx ts-node src/test.ts
+ * npx tsx src/test.ts
  * npm version ( patch | minor | major )
  * npm publish
  */

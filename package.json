@@ -2,8 +2,15 @@
   "name": "mapper-factory",
   "version": "3.2.0",
   "description": "mapper for typescript object",
+  "type": "module",
   "main": "dist/index.js",
   "types": "dist/index.d.ts",
+  "exports": {
+    ".": {
+      "types": "./dist/index.d.ts",
+      "import": "./dist/index.js"
+    }
+  },
   "files": [
     "/dist",
     "/images"
@@ -11,7 +18,7 @@
   "scripts": {
     "build": "npx tsc",
     "dev": "npx tsc --watch",
-    "test": "npx ts-node src/test.ts",
+    "test": "npx tsx src/test.ts",
     "patch": "npm version patch",
     "minor": "npm version minor",
     "major": "npm version major",
