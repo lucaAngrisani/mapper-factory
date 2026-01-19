@@ -1,4 +1,3 @@
-import 'reflect-metadata';
 import { ClassType } from '../types';
 
 export const MAP_FIELD = Symbol('MAP_FIELD');
@@ -31,8 +30,7 @@ export const MapField = <T = any>({
         const classConstructor = target.constructor;
         const propertyName = property.toString();
 
-        const metadata =
-            Reflect.getMetadata(MAP_FIELD, classConstructor) || {};
+        const metadata = (classConstructor as any)[MAP_FIELD] || {};
 
         // create new object reference to avoid this issue: https://github.com/rbuckton/reflect-metadata/issues/62
         const newMetadata: any = { ...metadata };
@@ -47,24 +45,20 @@ export const MapField = <T = any>({
             reverser,
         };
 
-        Reflect.defineMetadata(
-            MAP_FIELD,
-            newMetadata,
-            classConstructor,
-        );
+        (classConstructor as any)[MAP_FIELD] = newMetadata;
     };
 };
 
 export const getMapFieldMetadataList = (
     target: Record<string, unknown> | ClassType | any,
 ): { [key: string]: MapperMetadata } | undefined => {
-    return Reflect.getMetadata(MAP_FIELD, getPrototype(target));
+    return (getPrototype(target) as any)[MAP_FIELD];
 };
 
 export const hasMapFieldMetadataList = (
     target: Record<string, unknown> | ClassType,
 ): boolean => {
-    return Reflect.hasMetadata(MAP_FIELD, getPrototype(target));
+    return !!(getPrototype(target) as any)[MAP_FIELD];
 };
 
 export const getMapFieldMetadata = (
@@ -84,10 +78,7 @@ export const hasMapFieldMetadata = (
     target: Record<string, unknown> | ClassType,
     propertyName: string,
 ): boolean => {
-    const metadata = Reflect.getMetadata(
-        MAP_FIELD,
-        getPrototype(target),
-    );
+    const metadata = (getPrototype(target) as any)[MAP_FIELD];
 
     return metadata && !!metadata[propertyName];
 };

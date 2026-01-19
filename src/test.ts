@@ -1,3 +1,4 @@
+//// import "reflect-metadata";
 import { MapClass, MapInterface } from "./class.decorator";
 import { ArrayField } from "./field-decorators/array.decorator";
 import { DateField } from "./field-decorators/date.decorator";

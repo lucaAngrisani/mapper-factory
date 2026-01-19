@@ -1,4 +1,5 @@
 import { getMapFieldMetadataList } from "./field-decorators/field.decorator";
+import { getValueByPath, setValueByPath } from "./utils";
 
 /**
  * Convert the instance of this class to JSON Object.
@@ -7,76 +8,38 @@ import { getMapFieldMetadataList } from "./field-decorators/field.decorator";
  */
 export function toMap(): any {
   const metadataList: any = getMapFieldMetadataList(this);
-  let obj = {};
+  const obj = {};
 
-  const processProperty = (
-    objCopy: any,
-    propsStereoid: any[],
-    value: any,
-    reverser: any
-  ) => {
-    let lastIndex: string;
-    for (let i = 0; i < propsStereoid.length; i++) {
-      const prop = propsStereoid[i];
-      if (prop.isArray) {
-        let arrIndex = prop.arrIndex
-          .split(/\[(\w+)\]/g)
-          .filter((index) => index !== "");
-        objCopy[prop.prop] = objCopy[prop.prop] || [];
-        objCopy = objCopy[prop.prop];
-        arrIndex.forEach((index, i) => {
-          objCopy[index] =
-            objCopy[index] || (i == arrIndex.length - 1 ? {} : []);
-          if (i != arrIndex.length - 1) objCopy = objCopy[index];
-          else lastIndex = index;
-        });
-      } else {
-        objCopy[prop.prop] = objCopy[prop.prop] || {};
-        if (i != propsStereoid.length - 1) objCopy = objCopy[prop.prop];
-        else lastIndex = prop.prop;
-      }
-    }
-    objCopy[lastIndex] = reverser ? reverser(value, this) : value;
-  };
-
-  this &&
+  if (this) {
     Object.keys(this).forEach((propertyName) => {
       const metadata = metadataList && metadataList[propertyName];
       const src = metadata?.src || propertyName;
+      const value = this[propertyName];
+
+      let finalValue: any;
 
       if (metadata) {
-        if (src.includes(".")) {
-          let props = src.split(".");
-          let propsStereoid = props.map((prop) => ({
-            prop: prop.includes("[")
-              ? prop.substring(0, prop.indexOf("["))
-              : prop,
-            isArray: prop.includes("[") && prop.includes("]"),
-            arrIndex: prop.substring(prop.indexOf("[")),
-          }));
-          processProperty(
-            obj,
-            propsStereoid,
-            this[propertyName],
-            metadata.reverser
-          );
-        } else {
-          obj[src] =
-            Array.isArray(this[propertyName]) && !metadata.reverser
-              ? this[propertyName].map((item) =>
+          if (Array.isArray(value) && !metadata.reverser) {
+             finalValue = value.map((item) =>
                   item?.toMap ? item.toMap() : item
-                )
-              : metadata.reverser
-              ? metadata.reverser(this[propertyName], this)
-              : this[propertyName]?.toMap
-              ? this[propertyName].toMap()
-              : this[propertyName];
-        }
+                );
+          } else if (metadata.reverser) {
+             finalValue = metadata.reverser(value, this);
+          } else if (value?.toMap) {
+             finalValue = value.toMap();
+          } else {
+             finalValue = value;
+          }
       } else {
-        if (this[propertyName] != undefined)
-          obj[propertyName] = this[propertyName];
+         finalValue = value;
+      }
+
+      if (finalValue !== undefined) {
+         setValueByPath(obj, src, finalValue);
       }
     });
+
+  }
 
   return obj;
 }
@@ -135,8 +98,7 @@ export function filled(): boolean {
  * @returns Value of the property
  */
 export function get<T>(path: string): T {
-  const props = path.replace(/\[(\w+)\]/g, ".$1").split(".");
-  return props.reduce((acc, prop) => acc && acc[prop], this) as T;
+  return getValueByPath(this, path);
 }
 
 /**
@@ -146,15 +108,7 @@ export function get<T>(path: string): T {
  * @param value Value of the property
  */
 export function set(path: string, value: any) {
-  const props = path.replace(/\[(\w+)\]/g, ".$1").split(".");
-  let obj = this;
-
-  props.slice(0, -1).forEach((prop) => {
-    if (!obj[prop]) obj[prop] = {};
-    obj = obj[prop];
-  });
-
-  obj[props[props.length - 1]] = value;
+  setValueByPath(this, path, value);
 }
 
 /**
@@ -171,84 +125,58 @@ export function copy<T>(): T {
  */
 export function from(object: any) {
   const metadataList: any = getMapFieldMetadataList(this);
+  const mappedSrcRoots = new Set<string>();
 
-  const processProperty = (objCopy: any, propsStereoid: any[]) => {
-    for (let i = 0; i < propsStereoid.length; i++) {
-      const prop = propsStereoid[i];
-      if (prop.isArray) {
-        let arrIndex = prop.arrIndex
-          .split(/\[(\w+)\]/g)
-          .filter((index) => index !== "");
-        objCopy = objCopy[prop.prop];
-        arrIndex.forEach((index) => {
-          objCopy = objCopy[index];
-        });
-      } else {
-        objCopy = objCopy[prop.prop];
-      }
-    }
-    return objCopy;
-  };
+  // 1. Process Metadata
+  if (metadataList && object) {
+    Object.keys(metadataList).forEach((key) => {
+       const meta = metadataList[key];
+       const src = meta.src || key;
 
-  const setProperty = (metaKey: string, value: any, object: any) => {
-    const metaProp = metadataList?.[metaKey];
-    if (metaProp?.transformer) {
-      const valueTransformed = metaProp.transformer(value, object);
-      if (valueTransformed != undefined) this[metaKey] = valueTransformed;
-    } else {
-      if (value != undefined) this[metaKey] = value;
-    }
-  };
+       // Identify root property for this mapping to exclude it from direct copy later
+       const normalizedPath = src.replace(/\[(\w+)\]/g, ".$1");
+       const root = normalizedPath.split(".")[0];
+       mappedSrcRoots.add(root);
 
-  object &&
-    Object.keys(object).forEach((propertyName) => {
-      let metaKeys =
-        metadataList &&
-        Object.keys(metadataList).filter((metadata) =>
-          metadataList[metadata]?.src?.split(".")?.includes(propertyName)
-        );
-      if (metaKeys?.length) {
-        metaKeys.forEach((metaKey) => {
-          const metaProp = metadataList?.[metaKey];
-          if (metaProp) {
-            const props = metaProp.src.split(".");
-            const propsStereoid = props.map((prop) => ({
-              prop: prop.includes("[")
-                ? prop.substring(0, prop.indexOf("["))
-                : prop,
-              isArray: prop.includes("[") && prop.includes("]"),
-              arrIndex: prop.substring(prop.indexOf("[")),
-            }));
-            const value = processProperty({ ...object }, propsStereoid);
-            setProperty(metaKey, value, object);
-          }
-        });
-      } else {
-        let metaKey =
-          metadataList &&
-          Object.keys(metadataList).find(
-            (metadata) => metadataList[metadata]?.src == propertyName
-          );
-        if (metaKey) {
-          const src = metadataList?.[metaKey].src || propertyName;
-          setProperty(metaKey, object[src], object);
-        } else {
-          setProperty(propertyName, object[propertyName], object);
-        }
-      }
+       const value = getValueByPath(object, src);
+
+       // Only process if value exists in source (matches old behavior and avoids infinite recursion on undefined)
+       if (value !== undefined) {
+           if (meta.transformer) {
+              const transformed = meta.transformer(value, object);
+              if (transformed !== undefined) {
+                 this[key] = transformed;
+              }
+           } else {
+              this[key] = value;
+           }
+       }
     });
+  }
 
-  // Initialize properties with "initialize" metadata
-  metadataList &&
+  // 2. Process Remaining Properties (Direct Copy)
+  // Only if they are not part of a mapped source root
+  if (object) {
+      Object.keys(object).forEach(prop => {
+          if (!mappedSrcRoots.has(prop)) {
+             this[prop] = object[prop];
+          }
+      });
+  }
+
+  // 3. Initialize properties with "initialize" metadata
+  if (metadataList) {
     Object.keys(metadataList).forEach((metaName) => {
+      const meta = metadataList[metaName];
       if (
-        metadataList[metaName]?.initialize &&
-        metadataList[metaName]?.transformer &&
+        meta?.initialize &&
+        meta?.transformer &&
         this[metaName] === undefined
       ) {
-        this[metaName] = metadataList[metaName].transformer(null, object);
+        this[metaName] = meta.transformer(null, object);
       }
     });
+  }
 
   return this;
 }

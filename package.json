@@ -41,9 +41,6 @@
     "url": "https://github.com/lucaAngrisani/mapper-factory/issues"
   },
   "homepage": "https://github.com/lucaAngrisani/mapper-factory#readme",
-  "dependencies": {
-    "reflect-metadata": "^0.2.2"
-  },
   "devDependencies": {
     "typescript": "^5.7.3"
   }
