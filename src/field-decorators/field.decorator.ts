@@ -1,84 +1,91 @@
-import { ClassType } from '../types';
+import { ClassType } from "../types";
 
-export const MAP_FIELD = Symbol('MAP_FIELD');
+export const MAP_FIELD = Symbol("MAP_FIELD");
 
 export interface MapperMetadata<T = any> {
-    src?: keyof T;
-    initialize?: boolean;
-    transformer?: { (input: any, ref: any): any };
-    reverser?: { (input: any): any };
+  src?: keyof T;
+  initialize?: boolean;
+  transformer?: { (input: any, ref: any): any };
+  reverser?: { (input: any): any };
 }
 
 export function isClass(func: any): func is ClassType {
-    return (
-        typeof func === 'function' &&
-        /^class\s/.test(Function.prototype.toString.call(func))
-    );
+  return (
+    typeof func === "function" &&
+    /^class\s/.test(Function.prototype.toString.call(func))
+  );
 }
 
 export function getPrototype(target: Record<string, unknown> | ClassType): any {
-    return isClass(target) || !target?.prototype ? !target?.constructor ? target : target?.constructor : target?.prototype;
+  return isClass(target) || !target?.prototype
+    ? !target?.constructor
+      ? target
+      : target?.constructor
+    : target?.prototype;
 }
 
 export const MapField = <T = any>({
-    transformer,
-    reverser,
-    src,
-    initialize = false,
-}: MapperMetadata<T> = {}): PropertyDecorator => {
-    return (target: any, property: string | symbol) => {
-        const classConstructor = target.constructor;
-        const propertyName = property.toString();
+  transformer,
+  reverser,
+  src,
+  initialize = false,
+}: MapperMetadata<T> = {}): ((
+  target: unknown,
+  propertyKey: string | symbol,
+) => void) => {
+  return (target: any, property: string | symbol) => {
+    const classConstructor = target.constructor;
+    const propertyName = property.toString();
 
-        const metadata = (classConstructor as any)[MAP_FIELD] || {};
+    const metadata = (classConstructor as any)[MAP_FIELD] || {};
 
-        // create new object reference to avoid this issue: https://github.com/rbuckton/reflect-metadata/issues/62
-        const newMetadata: any = { ...metadata };
+    // create new object reference to avoid this issue: https://github.com/rbuckton/reflect-metadata/issues/62
+    const newMetadata = { ...metadata };
 
-        const previousValues = metadata[propertyName];
+    const previousValues = metadata[propertyName];
 
-        newMetadata[propertyName] = {
-            ...previousValues,
-            src,
-            initialize,
-            transformer,
-            reverser,
-        };
-
-        (classConstructor as any)[MAP_FIELD] = newMetadata;
+    newMetadata[propertyName] = {
+      ...previousValues,
+      src,
+      initialize,
+      transformer,
+      reverser,
     };
+
+    classConstructor[MAP_FIELD] = newMetadata;
+  };
 };
 
 export const getMapFieldMetadataList = (
-    target: Record<string, unknown> | ClassType | any,
+  target: Record<string, unknown> | ClassType | any,
 ): { [key: string]: MapperMetadata } | undefined => {
-    return (getPrototype(target) as any)[MAP_FIELD];
+  return (getPrototype(target) as any)[MAP_FIELD];
 };
 
 export const hasMapFieldMetadataList = (
-    target: Record<string, unknown> | ClassType,
+  target: Record<string, unknown> | ClassType,
 ): boolean => {
-    return !!(getPrototype(target) as any)[MAP_FIELD];
+  return !!(getPrototype(target) as any)[MAP_FIELD];
 };
 
 export const getMapFieldMetadata = (
-    target: Record<string, unknown> | ClassType,
-    propertyName: string | symbol,
+  target: Record<string, unknown> | ClassType,
+  propertyName: string | symbol,
 ): MapperMetadata | undefined => {
-    const metadata = getMapFieldMetadataList(target);
+  const metadata = getMapFieldMetadataList(target);
 
-    const name = propertyName.toString();
+  const name = propertyName.toString();
 
-    if (!metadata || !metadata[name]) return undefined;
+  if (!metadata || !metadata[name]) return undefined;
 
-    return metadata[name];
+  return metadata[name];
 };
 
 export const hasMapFieldMetadata = (
-    target: Record<string, unknown> | ClassType,
-    propertyName: string,
+  target: Record<string, unknown> | ClassType,
+  propertyName: string,
 ): boolean => {
-    const metadata = (getPrototype(target) as any)[MAP_FIELD];
+  const metadata = (getPrototype(target) as any)[MAP_FIELD];
 
-    return metadata && !!metadata[propertyName];
+  return metadata && !!metadata[propertyName];
 };

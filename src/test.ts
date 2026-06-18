@@ -11,18 +11,18 @@ console.log("\n");
 
 @MapClass()
 class History {
-  id: string;
+  id!: string;
 
   @MapField({
     transformer: (arr) => " TEST TRASFORMER",
     reverser: (arr) => " TEST REVERSER",
   })
-  name: string;
+  name!: string;
 
   @MapField({
     src: "control",
   })
-  testControl: string;
+  testControl!: string;
 
   @MapField({
     initialize: true,
@@ -33,59 +33,61 @@ class History {
       return { monday: arr && arr[0], tuesday: arr && arr[1] };
     },
   })
-  daysActive: string[];
+  daysActive!: string[];
 
   @MapField({
     src: "test.concatenation",
   })
-  testConcatenation: string;
+  testConcatenation!: string;
 }
 interface History extends MapInterface<History> {}
 
 @MapClass()
 class User {
-  id: string;
-  username: string;
+  id!: string;
+  username!: string;
 
   @MapField({
     src: "firstName",
   })
-  name: string;
+  name!: string;
 
   @MapField({
     src: "lastName",
   })
-  surname: string;
+  surname!: string;
 
   @MapField({
     src: "rolesToMap",
-    transformer: (arr) => arr?.map((role) => role + " TEST TRASFORMER"),
-    reverser: (arr) => arr?.map((role) => role.replace(" TEST TRASFORMER", "")),
+    transformer: (arr) => arr?.map((role: string) => role + " TEST TRASFORMER"),
+    reverser: (arr) =>
+      arr?.map((role: string) => role.replace(" TEST TRASFORMER", "")),
   })
   roles?: string[];
 
   @MapField({
-    transformer: (arr) => arr?.map((user) => new User().from(user)),
+    transformer: (arr) => arr?.map((user: Object) => new User().from(user)),
   })
   employees?: User[];
 
   @MapField({
-    transformer: (user) => new User().from(user),
+    transformer: (user: Object) => new User().from(user),
   })
-  boss: User;
+  boss!: User;
 
   @MapField({
     transformer: (histories) =>
-      histories?.map((hst) => new History().from(hst)),
-    reverser: (histories) => histories?.map((hst) => hst.toMap()),
+      histories?.map((hst: Object) => new History().from(hst)),
+    reverser: (histories) => histories?.map((hst: History) => hst.toMap()),
   })
-  histories: History[];
+  histories!: History[];
 }
 interface User extends MapInterface<User> {}
 
 const emp1: User = new User().from({ firstName: "Summer", lastName: "Smith" });
 const emp2: User = new User().from({ firstName: "Morty", lastName: "Smith" });
 const JSONObject = {
+  id: "0",
   username: "god",
   firstName: "Rick",
   lastName: "Sanchez",
@@ -96,14 +98,17 @@ const JSONObject = {
 
 //TEST constructor
 const u = new User().from(JSONObject);
-const constructorTest: boolean =
+
+const constructorTest: boolean = !!(
+  u.id == JSONObject.id &&
   u.username == JSONObject.username &&
   u.name == JSONObject.firstName &&
   u.surname == JSONObject.lastName &&
   u.employees?.map((emp) => emp.name == emp1.name) &&
   u.roles?.map((role) => role == "CEO") &&
   u.boss.name == "Nello" &&
-  u.boss.surname == "Stanco";
+  u.boss.surname == "Stanco"
+);
 console.log("TEST CONSTRUCTOR", constructorTest ? "✅" : "❌");
 
 //TEST toModel method with JS Object
@@ -128,8 +133,8 @@ const h2 = new History().from({ name: "h2" });
 u.histories = [h1, h2];
 const uMapped = u.toMap();
 const toModelTest2 =
-  uMapped.histories?.map((h) => h.name == " TEST REVERSER") &&
-  u.histories?.map((h) => h.name == " TEST TRASFORMER");
+  uMapped.histories?.map((h: History) => h.name == " TEST REVERSER") &&
+  u.histories?.map((h: History) => h.name == " TEST TRASFORMER");
 console.log("TEST TRANSFORMER/REVERSER", toModelTest2 ? "✅" : "❌");
 
 //TEST REF
@@ -159,7 +164,7 @@ class Test {
     transformer: (value) => "test transformer",
     reverser: (value) => ({ a: "test reverser" }),
   })
-  a: string;
+  a!: string;
 }
 interface Test extends MapInterface<Test> {}
 
@@ -171,25 +176,27 @@ const checkTest2 =
   testFilled && testFilled.empty() == false && testFilled.filled() == true;
 console.log(
   "TEST EMPTY/FILLED WITH INITIALIZE",
-  checkTest1 && checkTest2 ? "✅" : "❌"
+  checkTest1 && checkTest2 ? "✅" : "❌",
 );
 
 const model3 = new Test().toModel({ a: "test to model" });
 console.log(
   "TEST TO MODEL WITH INITIALIZE",
-  model3.a == "test to model" ? "✅" : "❌"
+  model3.a == "test to model" ? "✅" : "❌",
 );
 
 const model4 = model3.toMap();
 console.log(
   "TEST TO MAP WITH INITIALIZE",
-  model4.b.a == "test reverser" ? "✅" : "❌"
+  model4.b.a == "test reverser" ? "✅" : "❌",
 );
 
 const model5 = model3.copy();
 console.log(
   "TEST COPY WITH INITIALIZE",
-  Object.keys(model5).every((k) => model5[k] == model3[k]) ? "✅" : "❌"
+  Object.keys(model5).every((k) => model5.get(k) == model3.get(k))
+    ? "✅"
+    : "❌",
 );
 
 @MapClass()
@@ -199,42 +206,44 @@ class TestFlag {
     reverser: (bool) => (bool ? "1" : "0"),
     initialize: true,
   })
-  flTest: boolean;
+  flTest!: boolean;
   @MapField({
     src: "b",
     transformer: (value) => "test transformer",
     reverser: (value) => ({ a: "test reverser" }),
     initialize: true,
   })
-  a: string;
+  a!: string;
 }
 interface TestFlag extends MapInterface<TestFlag> {}
 
 const testFlagInitialize = new TestFlag().from();
 console.log(
   "TEST INITIALIZE",
-  testFlagInitialize && testFlagInitialize.a == "test transformer" ? "✅" : "❌"
+  testFlagInitialize && testFlagInitialize.a == "test transformer"
+    ? "✅"
+    : "❌",
 );
 
 const testFlag0 = new TestFlag().from();
 const testFlag0Map = testFlag0.toMap();
 console.log(
   "TEST FLAG0",
-  testFlag0.flTest === false && testFlag0Map.flTest == "0" ? "✅" : "❌"
+  testFlag0.flTest === false && testFlag0Map.flTest == "0" ? "✅" : "❌",
 );
 
 const testFlag1 = new TestFlag().from({ flTest: "1" });
 const testFlag1Map = testFlag1.toMap();
 console.log(
   "TEST FLAG1",
-  testFlag1.flTest && testFlag1Map.flTest == "1" ? "✅" : "❌"
+  testFlag1.flTest && testFlag1Map.flTest == "1" ? "✅" : "❌",
 );
 
 const testFlag2 = new TestFlag().from({ flTest: "0" });
 const testFlag2Map = testFlag2.toMap();
 console.log(
   "TEST FLAG2",
-  !testFlag2.flTest && testFlag2Map.flTest == "0" ? "✅" : "❌"
+  !testFlag2.flTest && testFlag2Map.flTest == "0" ? "✅" : "❌",
 );
 
 @MapClass()
@@ -253,7 +262,7 @@ console.log("TEST WITHOUT MAP FIELD", testWOMF ? "✅" : "❌");
 
 @MapClass()
 class ObjDecorator {
-  id: string;
+  id!: string;
   @ObjectField(ObjDecorator)
   testObject?: ObjDecorator;
 }
@@ -283,13 +292,13 @@ const JSONTestDecorators = {
 const testDecorators = new TestDecorators().from(JSONTestDecorators);
 console.log(
   "TEST WITH DECORATORS",
-  testDecorators.date.toISOString() &&
+  testDecorators.date?.toISOString() &&
     testDecorators.objList?.length === 2 &&
     testDecorators.obj instanceof ObjDecorator &&
     testDecorators.objList[0] instanceof ObjDecorator &&
     testDecorators.objList[0].testObject instanceof ObjDecorator
     ? "✅"
-    : "❌"
+    : "❌",
 );
 
 console.log("\n");

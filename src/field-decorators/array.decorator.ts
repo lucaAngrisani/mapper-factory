@@ -3,17 +3,15 @@ import { MapField } from "./field.decorator";
 
 export function ArrayField<T extends MapInterface<T>>(
   clsFactory: new () => T,
-  opt?: { src?: string }
-): PropertyDecorator {
+  opt?: { src?: string },
+): (target: unknown, propertyKey: string | symbol) => void {
   const Ctor = clsFactory;
 
   return MapField({
     src: opt?.src,
     transformer: (arr: any[]) =>
-      Array.isArray(arr)
-        ? arr.map((item) => new Ctor().from(item))
-        : [],
+      Array.isArray(arr) ? arr.map((item) => new Ctor().from(item)) : [],
     reverser: (arr: T[]) =>
       Array.isArray(arr) ? arr.map((item) => item.toMap()) : [],
-  });
+  }) as (target: unknown, propertyKey: string | symbol) => void;
 }
