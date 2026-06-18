@@ -4,12 +4,12 @@ import { MapField } from "./field.decorator";
 export function ObjectField<T extends MapInterface<T>>(
   clsFactory: new () => T,
   opt?: { src?: string }
-): (target: unknown, propertyKey: string | symbol) => void {
+): (target: unknown, propertyKey: string | symbol | object) => void {
   const Ctor = clsFactory;
 
   return MapField({
     src: opt?.src,
     transformer: (obj: any) => (obj ? new Ctor().from(obj) : null),
     reverser: (obj: T) => obj?.toMap?.() ?? null,
-  }) as (target: unknown, propertyKey: string | symbol) => void;
+  }) as (target: unknown, propertyKey: string | symbol | object) => void;
 }

@@ -31,9 +31,9 @@ export const MapField = <T = any>({
   initialize = false,
 }: MapperMetadata<T> = {}): ((
   target: unknown,
-  propertyKey: string | symbol,
+  propertyKey: string | symbol | object,
 ) => void) => {
-  return (target: any, property: string | symbol) => {
+  return (target: any, property: string | symbol | object) => {
     const classConstructor = target.constructor;
     const propertyName = property.toString();
 
