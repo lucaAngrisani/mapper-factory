@@ -155,6 +155,7 @@ export function from(
       const normalizedPath = src.replace(/\[(\w+)\]/g, ".$1");
       const root = normalizedPath.split(".")[0];
       mappedSrcRoots.add(root);
+      mappedSrcRoots.add(key.split(".")[0]);
 
       let value = getValueByPath(object, src);
       if (value === undefined && src !== key) {
