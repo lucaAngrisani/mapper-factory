@@ -156,7 +156,10 @@ export function from(
       const root = normalizedPath.split(".")[0];
       mappedSrcRoots.add(root);
 
-      const value = getValueByPath(object, src);
+      let value = getValueByPath(object, src);
+      if (value === undefined && src !== key) {
+        value = getValueByPath(object, key);
+      }
 
       // Only process if value exists in source (matches old behavior and avoids infinite recursion on undefined)
       if (value !== undefined) {
