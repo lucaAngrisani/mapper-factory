@@ -301,4 +301,30 @@ console.log(
     : "❌",
 );
 
+@MapClass()
+class SubModelWithSrc {
+  @MapField({ src: "_id" })
+  id?: string;
+  name?: string;
+}
+interface SubModelWithSrc extends MapInterface<SubModelWithSrc> {}
+
+@MapClass()
+class ParentModelWithNested {
+  @MapField({
+    transformer: (sub) => new SubModelWithSrc().from(sub),
+    reverser: (sub: SubModelWithSrc) => sub?.toMap(),
+  })
+  sub?: SubModelWithSrc;
+}
+interface ParentModelWithNested extends MapInterface<ParentModelWithNested> {}
+
+const testSrcFallback = new ParentModelWithNested().from({
+  sub: { id: "507f1f77bcf86cd799439011", name: "test" },
+});
+console.log(
+  "TEST FALLBACK SRC -> KEY",
+  testSrcFallback.sub?.id === "507f1f77bcf86cd799439011" ? "✅" : "❌",
+);
+
 console.log("\n");
